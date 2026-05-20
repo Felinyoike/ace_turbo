@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import type { StoredOrder } from "@/lib/persistence";
 import { OrderManagementPanel } from "@/components/admin/OrderManagementPanel";
 import { getAllOrders } from "@/lib/data-access";

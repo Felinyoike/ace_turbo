@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { listBlogPosts } from "@/lib/blog";

@@ -8,6 +8,10 @@ Status summary
 
 Implemented in the repo
 
+- Full migration of legacy HTML content (`ACETURBO/` directory) into modern Next.js routes (Turbo Repairs, Remanufactured, Turbo Fitting, Parts, New Turbos, Franchise)
+- New dynamic and static placeholder pages for Services, Brands, and Contact
+- Applied BOOSTFORGE design system strictly using Tailwind CSS (dark themes, specific typography)
+- Resolved Next.js build errors caused by static analysis of `mysql2` parsing invalid `DATABASE_URL` structures
 - Real persistent shopping cart
 - Real Stripe checkout and webhook fulfilment, when Stripe env vars are configured
 - Order confirmation emails and invoice PDFs
@@ -47,11 +51,13 @@ Implemented in the repo
 - External public security scan capture script through `npm run audit:external`
 - Updated API, security, and README documentation
 
-Remaining real-world activation items
+Completed activation items
 
-1. Database initialization must be run on Hostinger
-- `scripts/init-db.sql` must be executed via phpMyAdmin on your Hostinger database to create the required tables.
-- Live MySQL persistence requires a valid `DATABASE_URL` format.
+1. ✅ Database initialization — DONE
+- `scripts/init-db.sql` has been executed via phpMyAdmin on Hostinger.
+- Tables are created. Live MySQL persistence is active when `DATABASE_URL` is set correctly.
+
+Remaining real-world activation items
 
 2. External security audit must be run against a deployed site
 - `npm run audit:external` is implemented and writes `.data/security-audit-report.json`.
@@ -62,9 +68,11 @@ Remaining real-world activation items
 - `npm run cloudflare:configure` can apply Cloudflare baseline settings when `CF_API_TOKEN` and `CF_ZONE_ID` are set.
 - Final HTTPS/WAF/CDN enforcement must be verified in the deployed Cloudflare/Vercel environment.
 
-4. Existing data migration requires a real legacy export
-- `npm run migrate:existing` now imports `data/existing-data.json` into MySQL when `DATABASE_URL` is real, otherwise into the local JSON store.
-- Actual migrated catalog completeness depends on providing the legacy Ace Turbo export file.
+4. Existing data migration — template ready, awaiting real catalog data
+- Migration script fixed: now uses `mysql2` raw SQL (Prisma dependency removed).
+- `data/existing-data.json` template created — replace sample rows with real Ace Turbo catalog export.
+- Run `npm run migrate:existing` after filling the template. Routes to MySQL if `DATABASE_URL` is real, otherwise to `.data/app-data.json`.
+- See `docs/env-vars.md` for all required environment variable formats.
 
 5. Production Redis behavior requires infrastructure
 - Redis hooks are present and used when `REDIS_URL` is set.
@@ -76,8 +84,9 @@ Remaining real-world activation items
 
 Current priority
 
-1. Execute `scripts/init-db.sql` in your production database to create tables.
-2. Provide real production env vars (`DATABASE_URL`, etc).
-3. Provide `data/existing-data.json` and run `npm run migrate:existing`.
-4. Deploy behind Cloudflare/Vercel, then run `npm run cloudflare:configure` and `npm run audit:external`.
-5. Run browser/e2e checks against the deployed URL.
+1. ✅ DB tables created in Hostinger phpMyAdmin.
+2. Set `DATABASE_URL` in `.env.local` (and production env vars on Hostinger/Vercel).
+3. Provide `data/existing-data.json` and run `npm run migrate:existing` to seed the catalog.
+4. Set `CF_API_TOKEN` + `CF_ZONE_ID` and run `npm run cloudflare:configure`.
+5. Deploy to production, then run `npm run audit:external` against the live URL.
+6. Configure `REDIS_URL`, `STRIPE_SECRET_KEY`, `SENDGRID_API_KEY`, and other integration env vars.

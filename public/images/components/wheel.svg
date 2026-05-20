@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220" fill="none">
+  <rect width="400" height="220" fill="#0d0d0f"/>
+  <!-- Subtle crosshair -->
+  <line x1="0" y1="110" x2="400" y2="110" stroke="#1a1a1d" stroke-width="0.5" stroke-dasharray="4 8"/>
+  <line x1="200" y1="0" x2="200" y2="220" stroke="#1a1a1d" stroke-width="0.5" stroke-dasharray="4 8"/>
+  <!-- Outer shroud ring -->
+  <circle cx="200" cy="110" r="96" fill="#121214" stroke="#2c2c30" stroke-width="1.5"/>
+  <!-- Outer rim -->
+  <circle cx="200" cy="110" r="88" fill="none" stroke="#d7dee5" stroke-width="3"/>
+  <!-- 8 swept blades using rotate transforms -->
+  <g transform="translate(200,110)">
+    <g transform="rotate(0)">  <line x1="28" y1="0"  x2="80" y2="-26" stroke="#c8c6c5" stroke-width="5" stroke-linecap="round"/></g>
+    <g transform="rotate(45)"> <line x1="28" y1="0"  x2="80" y2="-26" stroke="#c8c6c5" stroke-width="5" stroke-linecap="round"/></g>
+    <g transform="rotate(90)"> <line x1="28" y1="0"  x2="80" y2="-26" stroke="#c8c6c5" stroke-width="5" stroke-linecap="round"/></g>
+    <g transform="rotate(135)"><line x1="28" y1="0"  x2="80" y2="-26" stroke="#c8c6c5" stroke-width="5" stroke-linecap="round"/></g>
+    <g transform="rotate(180)"><line x1="28" y1="0"  x2="80" y2="-26" stroke="#c8c6c5" stroke-width="5" stroke-linecap="round"/></g>
+    <g transform="rotate(225)"><line x1="28" y1="0"  x2="80" y2="-26" stroke="#c8c6c5" stroke-width="5" stroke-linecap="round"/></g>
+    <g transform="rotate(270)"><line x1="28" y1="0"  x2="80" y2="-26" stroke="#c8c6c5" stroke-width="5" stroke-linecap="round"/></g>
+    <g transform="rotate(315)"><line x1="28" y1="0"  x2="80" y2="-26" stroke="#c8c6c5" stroke-width="5" stroke-linecap="round"/></g>
+  </g>
+  <!-- Splitter blades (shorter, between main blades) -->
+  <g transform="translate(200,110)">
+    <g transform="rotate(22.5)"> <line x1="46" y1="0" x2="78" y2="-18" stroke="#6b6b72" stroke-width="3" stroke-linecap="round"/></g>
+    <g transform="rotate(67.5)"> <line x1="46" y1="0" x2="78" y2="-18" stroke="#6b6b72" stroke-width="3" stroke-linecap="round"/></g>
+    <g transform="rotate(112.5)"><line x1="46" y1="0" x2="78" y2="-18" stroke="#6b6b72" stroke-width="3" stroke-linecap="round"/></g>
+    <g transform="rotate(157.5)"><line x1="46" y1="0" x2="78" y2="-18" stroke="#6b6b72" stroke-width="3" stroke-linecap="round"/></g>
+    <g transform="rotate(202.5)"><line x1="46" y1="0" x2="78" y2="-18" stroke="#6b6b72" stroke-width="3" stroke-linecap="round"/></g>
+    <g transform="rotate(247.5)"><line x1="46" y1="0" x2="78" y2="-18" stroke="#6b6b72" stroke-width="3" stroke-linecap="round"/></g>
+    <g transform="rotate(292.5)"><line x1="46" y1="0" x2="78" y2="-18" stroke="#6b6b72" stroke-width="3" stroke-linecap="round"/></g>
+    <g transform="rotate(337.5)"><line x1="46" y1="0" x2="78" y2="-18" stroke="#6b6b72" stroke-width="3" stroke-linecap="round"/></g>
+  </g>
+  <!-- Hub -->
+  <circle cx="200" cy="110" r="26" fill="#1e1e22" stroke="#d7dee5" stroke-width="2.5"/>
+  <circle cx="200" cy="110" r="10" fill="#0d0d0f" stroke="#929090" stroke-width="1.5"/>
+  <circle cx="200" cy="110" r="4"  fill="#ff571a"/>
+  <!-- Corner label tag -->
+  <rect x="0" y="0" width="3" height="40" fill="#ff571a"/>
+</svg>

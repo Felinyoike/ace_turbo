@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { SeoLinkPanel } from "@/components/admin/SeoLinkPanel";
 import { getTurbos } from "@/lib/data-access";
 

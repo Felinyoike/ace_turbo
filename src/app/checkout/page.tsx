@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { CheckoutPanel } from "@/components/cart/CheckoutPanel";
 
 export default function CheckoutPage() {

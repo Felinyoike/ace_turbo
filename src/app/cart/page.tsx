@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { CartItem, type CartLineItem } from "@/components/cart/CartItem";

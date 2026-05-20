@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import type { StoredOrder } from "@/lib/persistence";
 import Link from "next/link";
 import { listOrdersForCurrentUser } from "@/lib/orders";

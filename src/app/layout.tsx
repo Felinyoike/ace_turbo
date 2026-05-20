@@ -1,9 +1,23 @@
+export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import "./globals.css";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CookieBanner } from "@/components/layout/CookieBanner";
 import { AnalyticsScripts } from "@/components/layout/AnalyticsScripts";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  weight: ["400", "500", "600"]
+});
+
+const jetBrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
+  weight: ["500"]
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://aceturbo.co.uk"),
@@ -36,8 +50,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="font-sans antialiased">
+    <html lang="en" className="dark">
+      <body className={`${inter.variable} ${jetBrainsMono.variable} antialiased`}>
         <AnalyticsScripts />
         <Header />
         {children}

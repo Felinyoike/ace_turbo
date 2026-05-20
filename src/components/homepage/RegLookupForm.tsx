@@ -1,57 +1,129 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { sanitizeRegistration } from "@/lib/sanitize-strings";
 
 export function RegLookupForm() {
+  const router = useRouter();
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function submitReg(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setLoading(true);
+    setMessage("");
+    
     const form = new FormData(event.currentTarget);
     const registration = sanitizeRegistration(String(form.get("registration") || ""));
-    const response = await fetch("/api/car-lookup", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ registration })
-    });
-    const data = await response.json();
-    setMessage(data.message || `Lookup recorded from ${data.source}.`);
+    
+    try {
+      const response = await fetch("/api/car-lookup", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ registration })
+      });
+      const data = await response.json();
+      
+      if (data.vehicle) {
+        const params = new URLSearchParams();
+        if (data.vehicle.make) params.set("make", data.vehicle.make.toUpperCase());
+        if (data.vehicle.model) params.set("model", data.vehicle.model.toUpperCase());
+        if (data.vehicle.engineCapacity) params.set("engine", data.vehicle.engineCapacity.toString());
+        if (data.vehicle.yearOfManufacture) params.set("year", data.vehicle.yearOfManufacture.toString());
+        router.push(`/turbos?${params.toString()}`);
+      } else {
+        setMessage(data.message || `No vehicle found for ${registration}.`);
+      }
+    } catch {
+      setMessage("An error occurred during lookup.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function submitPart(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const partNumber = String(form.get("turboNumber") || "").trim();
+    if (partNumber) {
+      router.push(`/turbos?partNumber=${encodeURIComponent(partNumber)}`);
+    }
   }
 
   return (
-    <aside className="angle-panel rounded-[28px] border border-slate-800 bg-[#141b22] px-4 py-5 shadow-ace" aria-label="Find your turbo">
-      <h2 className="mb-1 pl-3 text-sm font-black uppercase tracking-[0.18em] text-slate-100">Find Your Turbo</h2>
-      <p className="mb-4 pl-3 text-xs uppercase tracking-[0.18em] text-slate-500">Reg, serial or vehicle search</p>
-      <form className="mb-2" onSubmit={submitReg}>
-        <label className="mb-1 block pl-3 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500" htmlFor="registration">Registration</label>
-        <div className="grid grid-cols-[auto_1fr_auto] overflow-hidden rounded-2xl border border-slate-700 bg-[#0e1419]">
-          <span className="grid place-items-center bg-aceBlue px-3 text-[10px] font-bold text-white">UK</span>
-          <input id="registration" name="registration" className="min-w-0 bg-transparent px-3 py-3 font-black uppercase text-slate-100 outline-none" maxLength={12} placeholder="AB12CDE" required />
-          <button className="bg-slate-950 px-4 text-xs font-black uppercase tracking-[0.12em] text-white" type="submit">Check</button>
+    <aside className="relative overflow-hidden rounded-[28px] border border-outline-variant bg-[#201f22] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.28)]" aria-label="Turbo Finder">
+      <div className="absolute inset-0 machine-lines opacity-35" aria-hidden="true" />
+      <div className="relative">
+        <div className="mb-6 flex items-center gap-3">
+          <span className="text-[20px] text-[#ff571a]" aria-hidden="true">⟡</span>
+          <h2 className="font-tech text-[14px] uppercase tracking-[0.24em] text-[#e5e1e4]">Turbo Finder</h2>
         </div>
-      </form>
-      <p className="my-3 pl-3 text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400">or</p>
-      <form className="mb-2" action="/turbos">
-        <label className="mb-1 block pl-3 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500" htmlFor="turboNumber">Turbo Number</label>
-        <div className="grid grid-cols-[1fr_auto] overflow-hidden rounded-2xl border border-slate-700 bg-[#0e1419]">
-          <input id="turboNumber" name="turboNumber" className="min-w-0 bg-transparent px-3 py-3 text-sm text-slate-200 outline-none" maxLength={32} placeholder="753420-5006S" />
-          <button className="bg-[#1a232c] px-4 text-xs font-black uppercase tracking-[0.12em] text-aceBlue" type="submit">Find</button>
+
+        <div className="space-y-6">
+          <form onSubmit={submitReg}>
+            <label className="mb-2 block font-tech text-[10px] uppercase tracking-[0.2em] text-[#c8c6c5]" htmlFor="registration">
+              Enter your registration
+            </label>
+            <div className="flex gap-2">
+              <input
+                id="registration"
+                name="registration"
+                className="min-w-0 flex-1 border-b border-[#5c4037] bg-[#0e0e10] p-3 font-tech uppercase tracking-[0.1em] text-[#e5e1e4] outline-none placeholder:text-[#929090] focus:border-[#ff571a]"
+                maxLength={12}
+                placeholder="AB12CDE"
+                required
+              />
+              <button 
+                className="bg-[#ff571a] px-5 py-3 font-tech text-[12px] uppercase tracking-[0.2em] text-[#3a0b00] transition hover:brightness-110 disabled:opacity-50" 
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? "..." : "Find"}
+              </button>
+            </div>
+          </form>
+
+          <div className="relative flex items-center py-2">
+            <div className="flex-1 border-t border-[#5c4037]" />
+            <span className="mx-4 font-tech text-[10px] uppercase tracking-[0.24em] text-[#929090]">Or search by part</span>
+            <div className="flex-1 border-t border-[#5c4037]" />
+          </div>
+
+          <form onSubmit={submitPart}>
+            <label className="mb-2 block font-tech text-[10px] uppercase tracking-[0.2em] text-[#c8c6c5]" htmlFor="turboNumber">
+              Turbo part number
+            </label>
+            <div className="flex gap-2">
+              <input
+                id="turboNumber"
+                name="turboNumber"
+                className="min-w-0 flex-1 border-b border-[#5c4037] bg-[#0e0e10] p-3 font-tech tracking-[0.08em] text-[#e5e1e4] outline-none placeholder:text-[#929090] focus:border-[#ff571a]"
+                maxLength={32}
+                placeholder="e.g. 49173-07508"
+                required
+              />
+              <button 
+                className="inline-flex items-center bg-white/5 px-5 py-3 font-tech text-[12px] uppercase tracking-[0.18em] text-[#e5e1e4] transition hover:bg-white/10" 
+                type="submit"
+              >
+                Lookup
+              </button>
+            </div>
+          </form>
+
+          <button 
+            className="w-full border border-[#c6c6cf] bg-transparent py-3 font-tech text-[12px] uppercase tracking-[0.22em] text-[#c6c6cf] transition hover:bg-white/5 hover:text-[#ffdbd0]" 
+            type="button"
+            onClick={() => router.push("/turbos")}
+          >
+            Lookup technical specs
+          </button>
         </div>
-      </form>
-      <p className="my-3 pl-3 text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400">or</p>
-      <form className="grid gap-2" action="/turbos">
-        <label className="pl-3 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Vehicle Details</label>
-        {["Select Make:", "Select Model:", "Select Year", "Engine Size", "Select BHP"].map((label) => (
-          <select className="w-full rounded-2xl border border-slate-700 bg-[#0e1419] px-3 py-3 text-[12px] text-slate-300" key={label} required>
-            <option value="">{label}</option>
-            <option>Alfa Romeo</option>
-            <option>BMW</option>
-          </select>
-        ))}
-        <button className="mt-2 h-11 rounded-2xl bg-aceRed text-xs font-black uppercase tracking-[0.18em] text-[#140b0b]" type="submit">Search Vehicle</button>
-      </form>
-      {message ? <p className="mt-3 pl-3 text-xs text-aceBlueDeep">{message}</p> : null}
+
+        {message ? <p className="mt-4 font-body text-sm text-[#ffb59e]">{message}</p> : null}
+      </div>
     </aside>
   );
 }

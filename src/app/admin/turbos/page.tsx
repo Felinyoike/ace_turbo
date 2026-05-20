@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import type { StoredTurbo } from "@/lib/persistence";
 import { TurboDataEntry } from "@/components/admin/TurboDataEntry";
 import { getTurbos } from "@/lib/data-access";

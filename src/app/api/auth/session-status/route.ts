@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { getSessionRecord } from "@/lib/data-access";
 import { jsonError } from "@/lib/http";

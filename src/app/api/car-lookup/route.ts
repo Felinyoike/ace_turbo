@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { carRegSchema } from "@/validators/carRegSchema";
 import { fetchVehicleFromDvla } from "@/lib/dvla";

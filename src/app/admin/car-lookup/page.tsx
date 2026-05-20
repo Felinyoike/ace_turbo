@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import type { StoredLookup } from "@/lib/persistence";
 import { getLookupRecords } from "@/lib/data-access";
 

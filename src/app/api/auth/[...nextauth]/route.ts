@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import NextAuth, { type NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { userSchema } from "@/validators/userSchema";

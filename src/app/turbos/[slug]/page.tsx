@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import { TurboDetail } from "@/components/turbos/TurboDetail";
 import { getSessionUser, isB2B } from "@/lib/auth";

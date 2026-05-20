@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import type { MetadataRoute } from "next";
 import { listBlogPosts } from "@/lib/blog";
 import { getTurbos } from "@/lib/data-access";

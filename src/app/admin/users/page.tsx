@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { SessionManagementPanel } from "@/components/admin/SessionManagementPanel";
 import type { StoredIpBlock, StoredSession, StoredUser } from "@/lib/persistence";
 import { UserManagementPanel } from "@/components/admin/UserManagementPanel";

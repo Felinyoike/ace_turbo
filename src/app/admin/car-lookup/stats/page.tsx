@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { LookupStatsPanel } from "@/components/admin/LookupStatsPanel";
 import { getLookupStats } from "@/lib/data-access";
 

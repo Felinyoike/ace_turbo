@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { readAppData } from "@/lib/persistence";
 
 export default async function AuditPage() {

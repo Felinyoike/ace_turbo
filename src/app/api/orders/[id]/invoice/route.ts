@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { readFile } from "fs/promises";
 import path from "path";
 import { getOrderById } from "@/lib/orders";

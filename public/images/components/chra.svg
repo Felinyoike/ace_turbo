@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220" fill="none">
+  <rect width="400" height="220" fill="#0d0d0f"/>
+  <!-- Subtle crosshair guides -->
+  <line x1="0" y1="110" x2="400" y2="110" stroke="#1a1a1d" stroke-width="0.5" stroke-dasharray="4 8"/>
+  <line x1="200" y1="0" x2="200" y2="220" stroke="#1a1a1d" stroke-width="0.5" stroke-dasharray="4 8"/>
+  <!-- Outer housing ring -->
+  <circle cx="200" cy="110" r="94" fill="#121214" stroke="#2c2c30" stroke-width="2"/>
+  <!-- Bearing sleeve -->
+  <circle cx="200" cy="110" r="66" fill="#0d0d0f" stroke="#d7dee5" stroke-width="2.5"/>
+  <!-- Tolerance gap ring -->
+  <circle cx="200" cy="110" r="52" fill="none" stroke="#38383f" stroke-width="1" stroke-dasharray="6 4"/>
+  <!-- Inner bore -->
+  <circle cx="200" cy="110" r="36" fill="#121214" stroke="#929090" stroke-width="1.5"/>
+  <!-- 4 oil passage holes at 90 degree intervals -->
+  <circle cx="200" cy="44" r="7" fill="#121214" stroke="#ff571a" stroke-width="1.5"/>
+  <circle cx="266" cy="110" r="7" fill="#121214" stroke="#ff571a" stroke-width="1.5"/>
+  <circle cx="200" cy="176" r="7" fill="#121214" stroke="#ff571a" stroke-width="1.5"/>
+  <circle cx="134" cy="110" r="7" fill="#121214" stroke="#ff571a" stroke-width="1.5"/>
+  <!-- Shaft bore center -->
+  <circle cx="200" cy="110" r="14" fill="#1e1e22" stroke="#c8c6c5" stroke-width="2"/>
+  <circle cx="200" cy="110" r="5" fill="#ff571a"/>
+  <!-- Corner label tag -->
+  <rect x="0" y="0" width="3" height="40" fill="#ff571a"/>
+</svg>

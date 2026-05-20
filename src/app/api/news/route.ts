@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { listBlogPosts, upsertBlogPost } from "@/lib/blog";
 import { z } from "zod";

@@ -1,0 +1,260 @@
+export const dynamic = "force-dynamic";
+import type { Metadata } from "next";
+import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Turbo Repairs | Ace Turbo — Professional Workshop-Grade Service",
+  description:
+    "Professional turbocharger repairs using Melett components and a triple-axis balancing machine. Every repair comes with a balancing report. Call 01279-817451.",
+};
+
+const repairPoints = [
+  "We use Melett turbo components exclusively — the industry gold standard.",
+  "We replace ALL components inside the turbine unit, not just the faulty parts.",
+  "Every repair includes a full balancing report to prove professional-grade completion.",
+  "We set a ceiling on repair costs. If a repair exceeds the price of a remanufactured unit, we always advise you first.",
+  "We possess both a balancing machine and a flow rig for post-repair testing.",
+];
+
+const warningPoints = [
+  "Many companies claim to repair turbos but lack the required balancing machinery.",
+  "Some operators work from garden sheds or as a garage side-project.",
+  "Not all turbos can be repaired — and costs can rise if initial damage assessment is incomplete.",
+  "Always verify that the company you choose has genuine professional equipment.",
+];
+
+export default function TurboRepairsPage() {
+  return (
+    <main className="min-h-screen bg-[#131315]">
+      {/* Page Header */}
+      <section className="relative overflow-hidden border-b border-[#27272A] bg-[#1c1b1d]">
+        <div className="machine-lines absolute inset-0 opacity-30" aria-hidden="true" />
+        <div className="relative mx-auto max-w-[1200px] px-4 py-16 md:px-12">
+          <p className="font-tech text-[13px] uppercase tracking-[0.3em] text-[#ffb59e]">Services</p>
+          <h1 className="mt-3 font-display text-[clamp(2.5rem,6vw,4.5rem)] font-extrabold uppercase leading-none tracking-[-0.03em] text-[#e5e1e4]">
+            Turbo <span className="text-[#ff571a]">Repairs</span>
+          </h1>
+          <p className="mt-4 max-w-xl text-[17px] leading-7 text-[#c6c6cf]">
+            Workshop-grade turbo repairs using industry-leading Melett components, triple-axis
+            balancing and a flow rig. Every job comes with a full balancing report.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-4">
+            <a
+              href="tel:01279-817451"
+              className="inline-flex items-center gap-2 bg-[#ff571a] px-6 py-3 font-tech text-[12px] uppercase tracking-[0.22em] text-[#3a0b00] transition hover:brightness-110"
+            >
+              📞 Call 01279-817451
+            </a>
+            <a
+              href="mailto:contact@aceturbo.co.uk"
+              className="inline-flex items-center gap-2 border border-[#ad897e] px-6 py-3 font-tech text-[12px] uppercase tracking-[0.22em] text-[#e5e1e4] transition hover:bg-white/5"
+            >
+              ✉ Email Us
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <div className="mx-auto max-w-[1200px] px-4 py-16 md:px-12">
+        <div className="grid gap-12 lg:grid-cols-[1fr_340px]">
+
+          {/* Main Content */}
+          <div className="space-y-12">
+
+            {/* Our Services intro */}
+            <section>
+              <h2 className="mb-5 font-tech text-[13px] uppercase tracking-[0.26em] text-[#ff571a]">
+                Our Services
+              </h2>
+              <div className="space-y-5 text-[16px] leading-8 text-[#c6c6cf]">
+                <p>
+                  Turbo repairs are an excellent way to save money and get your car back on the road
+                  as quickly and economically as possible — provided the turbo company has a balancing
+                  machine and flow rig to test the repair once the work has been completed.
+                </p>
+                <p>
+                  As a professional turbo remanufacturer, we can only advise our customers on the best
+                  course of action to help them strike a balance between quality and value for money.
+                  To ensure we give our customers the best possible service, we only use{" "}
+                  <span className="font-semibold text-[#e5e1e4]">Melett turbo components</span> in
+                  our repairs.
+                </p>
+                <p>
+                  We change everything inside the turbine unit — not just the faulty components. This
+                  means all components are of the same age and will all last a similar time.
+                </p>
+              </div>
+            </section>
+
+            {/* Balancing Machine callout */}
+            <div className="relative overflow-hidden border border-[#27272A] bg-[#201f22] p-8">
+              <div className="absolute right-0 top-0 h-24 w-24 -translate-y-10 translate-x-10 rotate-45 bg-[#ff571a]/8" aria-hidden="true" />
+              <p className="mb-2 font-tech text-[10px] uppercase tracking-[0.26em] text-[#ffb59e]">
+                Equipment
+              </p>
+              <h3 className="font-display text-2xl uppercase text-[#e5e1e4]">Our Balancing Machine</h3>
+              <p className="mt-3 text-[15px] leading-7 text-[#c6c6cf]">
+                We operate a Cimat 48 twin balancing machine — the same equipment used by professional
+                turbo remanufacturers worldwide. After every repair, we run a full flow-rig test and
+                issue a printed balancing report.
+              </p>
+            </div>
+
+            {/* What Makes Our Repair */}
+            <section>
+              <h2 className="mb-6 font-display text-[1.75rem] uppercase text-[#e5e1e4]">
+                What Makes Our Repair <span className="text-[#ff571a]">Different</span>
+              </h2>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {repairPoints.map((point, i) => (
+                  <div
+                    key={i}
+                    className="flex gap-4 border border-[#27272A] bg-[#1c1b1d] p-5"
+                  >
+                    <span className="mt-0.5 flex-shrink-0 text-[#ff571a]">✓</span>
+                    <p className="text-[15px] leading-7 text-[#c6c6cf]">{point}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Melett repair kit */}
+            <div className="border-l-2 border-[#ff571a] bg-[#1c1b1d] p-6">
+              <p className="font-tech text-[11px] uppercase tracking-[0.24em] text-[#ffb59e]">
+                Component Quality
+              </p>
+              <p className="mt-3 text-[16px] leading-7 text-[#c6c6cf]">
+                A typical Melett repair kit includes a comprehensive set of components covering the
+                bearing housing, turbine shaft, seals, bearings, compressor wheel and back plate. We
+                source these kits specifically to ensure every repair lasts.
+              </p>
+            </div>
+
+            {/* Pricing transparency */}
+            <section>
+              <h2 className="mb-5 font-display text-[1.75rem] uppercase text-[#e5e1e4]">
+                Honest <span className="text-[#ff571a]">Pricing</span>
+              </h2>
+              <p className="text-[16px] leading-7 text-[#c6c6cf]">
+                A typical turbine unit has many components that could be damaged — and this is always
+                the unknown element that can make the price of a repair increase. To help ensure that a
+                repair price will not spiral, we set a ceiling. If we see that a turbo repair will cost
+                more than the price of a remanufactured turbo, we will always advise you and let you
+                decide before any additional work is carried out.
+              </p>
+            </section>
+
+            {/* Be Aware warning */}
+            <section className="border border-[#5c4037] bg-[#1c1b1d] p-8">
+              <h3 className="mb-4 font-display text-xl uppercase text-[#ff571a]">Be Aware!</h3>
+              <p className="mb-6 text-[13px] font-semibold uppercase tracking-[0.1em] text-[#e6beb2]">
+                Not all turbo repair companies are equal. Protect yourself:
+              </p>
+              <ul className="space-y-3">
+                {warningPoints.map((point, i) => (
+                  <li key={i} className="flex gap-3 text-[15px] leading-7 text-[#c6c6cf]">
+                    <span className="mt-1 flex-shrink-0 text-[#ff571a]">⚠</span>
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            {/* Book CTA */}
+            <section className="border border-[#27272A] bg-[#201f22] p-8">
+              <h3 className="mb-3 font-display text-2xl uppercase text-[#e5e1e4]">
+                Book a Turbo Repair
+              </h3>
+              <p className="mb-6 text-[16px] leading-7 text-[#c6c6cf]">
+                You can book a turbo repair with us confident in the knowledge that we will provide a
+                honest and professional service. Call us or send an email to discuss your requirements
+                and get a quote.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <a
+                  href="tel:01279-817451"
+                  className="inline-flex items-center gap-2 bg-[#ff571a] px-6 py-3 font-tech text-[12px] uppercase tracking-[0.22em] text-[#3a0b00] transition hover:brightness-110"
+                >
+                  Call 01279-817451
+                </a>
+                <a
+                  href="mailto:contact@aceturbo.co.uk"
+                  className="inline-flex items-center gap-2 border border-[#5c4037] px-6 py-3 font-tech text-[12px] uppercase tracking-[0.22em] text-[#e5e1e4] transition hover:bg-white/5"
+                >
+                  Email Us
+                </a>
+              </div>
+            </section>
+          </div>
+
+          {/* Sidebar */}
+          <aside className="space-y-6">
+            <div className="border border-[#27272A] bg-[#201f22] p-6">
+              <h4 className="mb-4 font-tech text-[11px] uppercase tracking-[0.24em] text-[#ffb59e]">
+                All Services
+              </h4>
+              <nav className="space-y-1">
+                {[
+                  ["Turbo Repairs", "/services/turbo-repairs"],
+                  ["Remanufactured Turbos", "/services/remanufactured"],
+                  ["Turbo Fitting", "/services/turbo-fitting"],
+                  ["Turbo Parts", "/services/turbo-parts"],
+                  ["New Turbos", "/services/new-turbos"],
+                ].map(([label, href]) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    className="flex items-center justify-between border border-transparent px-4 py-3 text-[14px] text-[#c6c6cf] transition hover:border-[#27272A] hover:bg-[#1c1b1d] hover:text-[#ffdbd0]"
+                  >
+                    {label}
+                    <span className="text-[#ff571a]">→</span>
+                  </Link>
+                ))}
+              </nav>
+            </div>
+
+            <div className="border border-[#27272A] bg-[#1c1b1d] p-6">
+              <h4 className="mb-3 font-tech text-[11px] uppercase tracking-[0.24em] text-[#ffb59e]">
+                Contact Us
+              </h4>
+              <p className="mb-4 text-[14px] leading-6 text-[#c6c6cf]">
+                Get a free repair quote or send your registration to begin.
+              </p>
+              <a
+                href="tel:01279-817451"
+                className="block w-full bg-[#ff571a] py-3 text-center font-tech text-[12px] uppercase tracking-[0.2em] text-[#3a0b00] transition hover:brightness-110"
+              >
+                01279-817451
+              </a>
+              <a
+                href="mailto:contact@aceturbo.co.uk"
+                className="mt-2 block w-full border border-[#5c4037] py-3 text-center font-tech text-[12px] uppercase tracking-[0.2em] text-[#e5e1e4] transition hover:bg-white/5"
+              >
+                contact@aceturbo.co.uk
+              </a>
+            </div>
+
+            <div className="border border-[#27272A] bg-[#1c1b1d] p-6">
+              <h4 className="mb-3 font-tech text-[11px] uppercase tracking-[0.24em] text-[#ffb59e]">
+                Why Ace Turbo?
+              </h4>
+              <ul className="space-y-3">
+                {[
+                  "Melett components only",
+                  "Full balancing report",
+                  "Price ceiling guarantee",
+                  "Flow-rig tested",
+                  "24h quote response",
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-2 text-[14px] text-[#c6c6cf]">
+                    <span className="text-[#ff571a]">✓</span> {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+  );
+}

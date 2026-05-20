@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { TurboCard } from "@/components/turbos/TurboCard";

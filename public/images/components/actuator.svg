@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220" fill="none">
+  <rect width="400" height="220" fill="#0d0d0f"/>
+  <!-- Horizontal center guide -->
+  <line x1="0" y1="110" x2="400" y2="110" stroke="#1a1a1d" stroke-width="0.5" stroke-dasharray="4 8"/>
+  <!-- Mounting bracket -->
+  <rect x="30" y="85" width="18" height="50" rx="3" fill="#1e1e22" stroke="#929090" stroke-width="1.5"/>
+  <circle cx="39" cy="97" r="5" fill="#0d0d0f" stroke="#929090" stroke-width="1.5"/>
+  <circle cx="39" cy="123" r="5" fill="#0d0d0f" stroke="#929090" stroke-width="1.5"/>
+  <!-- Main canister body -->
+  <rect x="48" y="72" width="182" height="76" rx="38" fill="#121214" stroke="#d7dee5" stroke-width="2.5"/>
+  <!-- Diaphragm split line -->
+  <line x1="139" y1="72" x2="139" y2="148" stroke="#38383f" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <!-- Spring coil (dashed arc suggesting compression spring) -->
+  <path d="M68 110 Q82 94 96 110 Q110 126 124 110" stroke="#929090" stroke-width="1.5" fill="none" stroke-dasharray="3 3"/>
+  <!-- Pressure port nipple on top -->
+  <rect x="122" y="57" width="22" height="18" rx="4" fill="#1a1a1d" stroke="#ff571a" stroke-width="1.5"/>
+  <circle cx="133" cy="57" r="4" fill="#ff571a" opacity="0.6"/>
+  <!-- Operating rod -->
+  <rect x="230" y="104" width="104" height="12" rx="2" fill="#d7dee5"/>
+  <!-- Clevis pin at rod tip -->
+  <circle cx="348" cy="110" r="13" fill="#1a1a1d" stroke="#d7dee5" stroke-width="2"/>
+  <circle cx="348" cy="110" r="5" fill="#ff571a" opacity="0.9"/>
+  <!-- Corner label tag -->
+  <rect x="0" y="0" width="3" height="40" fill="#ff571a"/>
+</svg>

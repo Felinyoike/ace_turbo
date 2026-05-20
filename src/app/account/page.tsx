@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { AccountSessionPanel } from "@/components/account/AccountSessionPanel";

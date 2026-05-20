@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { addCartItem, buildCartView, clearCart, updateCartItem } from "@/lib/cart";

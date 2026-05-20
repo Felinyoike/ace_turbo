@@ -1,0 +1,51 @@
+{
+  "_readme": "Populate this file with your legacy Ace Turbo catalog data and run: npm run migrate:existing",
+  "turbos": [
+    {
+      "sku": "GT1749V-001",
+      "make": "Volkswagen",
+      "model": "Golf",
+      "year": 2004,
+      "engine": "1.9 TDI",
+      "bhp": 130,
+      "type": "Remanufactured",
+      "price": 285.00,
+      "tradePrice": 220.00,
+      "stock": 5,
+      "images": ["/images/ace-turbo-preview.svg"],
+      "description": "Remanufactured Garrett GT1749V turbocharger for VW Golf 1.9 TDI 130BHP",
+      "seoSlug": "volkswagen-golf-19-tdi-gt1749v-remanufactured-turbo"
+    }
+  ],
+  "vehicles": [
+    {
+      "registration": "AB12CDE",
+      "make": "Volkswagen",
+      "model": "Golf",
+      "year": 2004,
+      "engine": "1.9 TDI",
+      "fuel": "Diesel",
+      "colour": "Black",
+      "source": "db"
+    }
+  ],
+  "users": [
+    {
+      "email": "admin@aceturbo.co.uk",
+      "password": "ChangeMe12345!",
+      "role": "admin",
+      "firstName": "Ace",
+      "lastName": "Admin",
+      "company": "Ace Turbo Ltd"
+    }
+  ],
+  "blogPosts": [
+    {
+      "title": "How to diagnose a failing turbocharger",
+      "slug": "how-to-diagnose-failing-turbocharger",
+      "excerpt": "Common signs your turbo needs attention and when to call in the experts.",
+      "body": "Common signs your turbo needs attention and when to call in the experts. Blue smoke on startup, loss of power, and excessive oil consumption are key indicators...",
+      "tags": ["diagnosis", "maintenance", "turbo-repair"]
+    }
+  ]
+}

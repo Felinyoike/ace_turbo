@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
 import bcrypt from "bcryptjs";
-import { PrismaClient } from "@prisma/client";
+import mysql from "mysql2/promise";
 
 const cwd = process.cwd();
 const sourcePath = process.env.MIGRATION_SOURCE || path.join(cwd, "data", "existing-data.json");
@@ -106,48 +106,63 @@ async function readJsonSource() {
   };
 }
 
-async function importToPrisma(source) {
-  const prisma = new PrismaClient();
+async function importToMySQL(source) {
+  const conn = await mysql.createConnection(process.env.DATABASE_URL);
   const counts = { turbos: 0, vehicles: 0, users: 0, blogPosts: 0 };
 
   try {
     for (const row of source.turbos.map(normaliseTurbo)) {
-      await prisma.turbo.upsert({
-        where: { sku: row.sku },
-        update: row,
-        create: row
-      });
+      await conn.execute(
+        `INSERT INTO turbos (sku, make, model, year, engine, bhp, type, price, trade_price, stock, images, description, seo_slug)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE
+           make=VALUES(make), model=VALUES(model), year=VALUES(year), engine=VALUES(engine),
+           bhp=VALUES(bhp), type=VALUES(type), price=VALUES(price), trade_price=VALUES(trade_price),
+           stock=VALUES(stock), images=VALUES(images), description=VALUES(description), seo_slug=VALUES(seo_slug)`,
+        [
+          row.sku, row.make, row.model, row.year ?? null, row.engine, row.bhp ?? null,
+          row.type, row.price, row.tradePrice ?? null, row.stock,
+          JSON.stringify(row.images), row.description, row.seoSlug
+        ]
+      );
       counts.turbos += 1;
     }
 
     for (const row of source.vehicles.map(normaliseVehicle)) {
-      await prisma.vehicle.upsert({
-        where: { registration: row.registration },
-        update: row,
-        create: row
-      });
+      await conn.execute(
+        `INSERT INTO vehicles (registration, make, model, year, engine, fuel, colour, source)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE
+           make=VALUES(make), model=VALUES(model), year=VALUES(year), engine=VALUES(engine),
+           fuel=VALUES(fuel), colour=VALUES(colour), source=VALUES(source)`,
+        [
+          row.registration, row.make ?? null, row.model ?? null, row.year ?? null,
+          row.engine ?? null, row.fuel ?? null, row.colour ?? null, row.source
+        ]
+      );
       counts.vehicles += 1;
     }
 
     for (const row of source.users.map(normaliseUser)) {
-      await prisma.user.upsert({
-        where: { email: row.email },
-        update: {
-          role: row.role,
-          firstName: row.firstName,
-          lastName: row.lastName,
-          company: row.company,
-          phone: row.phone
-        },
-        create: row
-      });
+      await conn.execute(
+        `INSERT INTO users (email, password_hash, role, first_name, last_name, company, phone)
+         VALUES (?, ?, ?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE
+           role=VALUES(role), first_name=VALUES(first_name), last_name=VALUES(last_name),
+           company=VALUES(company), phone=VALUES(phone)`,
+        [
+          row.email, row.passwordHash, row.role, row.firstName,
+          row.lastName ?? null, row.company ?? null, row.phone ?? null
+        ]
+      );
       counts.users += 1;
     }
 
-    counts.blogPosts = source.blogPosts.map(normaliseBlogPost).length;
+    // No blog_posts table in MySQL schema — blog posts stay in local JSON store
+    counts.blogPosts = source.blogPosts.length;
     return counts;
   } finally {
-    await prisma.$disconnect();
+    await conn.end();
   }
 }
 
@@ -215,8 +230,8 @@ async function main() {
 
   try {
     const source = await readJsonSource();
-    const target = isRealDatabaseUrl() ? "prisma" : "local-json";
-    const counts = target === "prisma" ? await importToPrisma(source) : await importToLocalStore(source);
+    const target = isRealDatabaseUrl() ? "mysql" : "local-json";
+    const counts = target === "mysql" ? await importToMySQL(source) : await importToLocalStore(source);
     const report = {
       migratedAt: new Date().toISOString(),
       sourcePath,

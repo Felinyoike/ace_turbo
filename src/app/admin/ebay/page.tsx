@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { EbayListingForm } from "@/components/admin/EbayListingForm";
 import { getTurbos } from "@/lib/data-access";
 import { readAppData } from "@/lib/persistence";

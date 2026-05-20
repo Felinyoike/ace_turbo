@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { turboSchema, turboSearchSchema } from "@/validators/turboSchema";
 import { jsonError } from "@/lib/http";

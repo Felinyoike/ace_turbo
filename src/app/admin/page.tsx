@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 export default function AdminPage() {
   return (
     <main className="mx-auto max-w-[1120px] px-4 py-10">
