@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const isDev = process.env.NODE_ENV !== "production";
+
 const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
@@ -8,6 +10,10 @@ const nextConfig = {
     ]
   },
   async headers() {
+    const scriptSrc = isDev
+      ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://pagead2.googlesyndication.com"
+      : "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://pagead2.googlesyndication.com";
+
     return [
       {
         source: "/(.*)",
@@ -18,7 +24,7 @@ const nextConfig = {
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
           {
             key: "Content-Security-Policy",
-            value: "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://pagead2.googlesyndication.com; frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://driver-vehicle-licensing.api.gov.uk https://www.google-analytics.com https://pagead2.googlesyndication.com;"
+            value: `default-src 'self'; img-src 'self' data: https:; ${scriptSrc}; frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://driver-vehicle-licensing.api.gov.uk https://www.google-analytics.com https://pagead2.googlesyndication.com;`
           }
         ]
       }

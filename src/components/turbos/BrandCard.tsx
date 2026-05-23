@@ -22,26 +22,26 @@ export function BrandCard({ brand }: BrandCardProps) {
   return (
     <Link
       href={`/turbos/brands/${brand.slug}`}
-      className="group grid grid-cols-1 border border-[#27272A] bg-[#1c1b1d] transition hover:border-[#ff571a]/40 md:grid-cols-[80px_1fr_auto]"
+      className="group grid grid-cols-1 border border-slate-200 bg-white transition hover:border-[#0868a8]/40 hover:shadow-md md:grid-cols-[80px_1fr_auto]"
     >
       {/* Tag */}
-      <div className="flex items-center justify-center border-b border-[#27272A] bg-[#201f22] px-6 py-5 md:border-b-0 md:border-r">
-        <span className="font-tech text-[10px] uppercase tracking-[0.26em] text-[#ff571a]">
+      <div className="flex items-center justify-center border-b border-slate-200 bg-slate-50 px-6 py-5 md:border-b-0 md:border-r">
+        <span className="font-tech text-[10px] uppercase tracking-[0.26em] text-[#0868a8]">
           {brand.tag}
         </span>
       </div>
 
       {/* Content */}
       <div className="px-6 py-6 md:py-7">
-        <h2 className="font-display text-[1.5rem] uppercase text-[#e5e1e4] transition group-hover:text-[#ff571a]">
+        <h2 className="font-display text-[1.5rem] uppercase text-[#0f172a] transition group-hover:text-[#0868a8]">
           {brand.name}
         </h2>
-        <p className="mt-2 max-w-2xl text-[14px] leading-7 text-[#929090]">{brand.summary}</p>
+        <p className="mt-2 max-w-2xl text-[14px] leading-7 text-[#64748b]">{brand.summary}</p>
       </div>
 
       {/* Arrow - visible only on desktop */}
       <div className="hidden items-center justify-center px-6 md:flex">
-        <span className="text-[1.5rem] text-[#5c4037] transition group-hover:text-[#ff571a]">
+        <span className="text-[1.5rem] text-[#cbd5e1] transition group-hover:text-[#0868a8]">
           →
         </span>
       </div>

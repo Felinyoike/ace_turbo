@@ -8,13 +8,13 @@ export default async function UsersPage() {
   const [users, ipBlocks, sessions] = await Promise.all([getUsers(), getIpBlocks(), getSessions()]);
   return (
     <main className="mx-auto max-w-[900px] px-4 py-10">
-      <h1 className="text-4xl font-black text-slate-100">User & IP Management</h1>
-      <p className="mt-3 text-slate-400">Manage sessions, roles, blocked IPs and redirect targets.</p>
+      <h1 className="text-4xl font-extrabold text-[#0f172a]">User &amp; IP Management</h1>
+      <p className="mt-3 text-[#475569]">Manage sessions, roles, blocked IPs and redirect targets.</p>
       <div className="mt-6">
         <UserManagementPanel initialIpBlocks={ipBlocks as StoredIpBlock[]} initialUsers={users as StoredUser[]} />
       </div>
       <section className="mt-8">
-        <h2 className="mb-4 text-2xl font-black text-slate-100">Session inventory</h2>
+        <h2 className="mb-4 text-2xl font-bold text-[#0f172a]">Session Inventory</h2>
         <SessionManagementPanel initialSessions={sessions as StoredSession[]} users={users as StoredUser[]} />
       </section>
     </main>

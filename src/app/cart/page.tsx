@@ -1,35 +1,23 @@
 export const dynamic = "force-dynamic";
 import Link from "next/link";
-import { CartDrawer } from "@/components/cart/CartDrawer";
-import { CartItem, type CartLineItem } from "@/components/cart/CartItem";
+import { CartPageClient } from "@/components/cart/CartPageClient";
 import { buildCartView } from "@/lib/cart";
 
 export default async function CartPage() {
   const cart = await buildCartView();
-  const items = cart.items.filter((item): item is CartLineItem => Boolean(item));
   return (
-    <main className="mx-auto max-w-[900px] px-4 py-12">
-      <h1 className="mb-4 text-4xl font-black text-slate-100">Shopping Cart</h1>
-      <section className="rounded-[28px] border border-slate-800 bg-[#141b22] p-6 shadow-ace">
-        {items.length ? (
-          <>
-            <div className="grid gap-4">
-              {items.map((item) => (
-                <CartItem item={item} key={item.turboId} />
-              ))}
-            </div>
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-              <p className="text-lg font-black text-slate-100">Total: GBP {cart.total.toFixed(2)}</p>
-              <div className="flex flex-wrap gap-3">
-                <CartDrawer items={items} total={cart.total} />
-                <Link className="inline-flex rounded-full bg-aceBlue px-5 py-3 font-black text-[#081018]" href="/checkout">Secure checkout</Link>
-              </div>
-            </div>
-          </>
-        ) : (
-          <p className="text-slate-400">Your cart is empty.</p>
-        )}
+    <main className="min-h-screen bg-white">
+      <section className="border-b border-slate-200 bg-[#f8fafc]">
+        <div className="mx-auto max-w-[900px] px-4 py-14">
+          <p className="text-[13px] uppercase tracking-[0.3em] text-[#0868a8]">Your Order</p>
+          <h1 className="mt-3 text-[clamp(2rem,5vw,3.5rem)] font-extrabold uppercase leading-none tracking-tight text-[#0f172a]">
+            Shopping <span className="text-[#0868a8]">Cart</span>
+          </h1>
+        </div>
       </section>
+      <div className="mx-auto max-w-[900px] px-4 py-12">
+        <CartPageClient initialItems={cart.items} initialTotal={cart.total} />
+      </div>
     </main>
   );
 }

@@ -53,17 +53,17 @@ const services = [
 
 export default function ServicesPage() {
   return (
-    <main className="min-h-screen bg-[#131315]">
+    <main className="min-h-screen bg-white">
 
       {/* Header */}
-      <section className="relative overflow-hidden border-b border-[#27272A] bg-[#1c1b1d]">
+      <section className="relative overflow-hidden border-b border-slate-200 bg-[#f8fafc]">
         <div className="machine-lines absolute inset-0 opacity-30" aria-hidden="true" />
         <div className="relative mx-auto max-w-[1200px] px-4 py-16 md:px-12">
-          <p className="font-tech text-[13px] uppercase tracking-[0.3em] text-[#ffb59e]">What We Do</p>
-          <h1 className="mt-3 font-display text-[clamp(2.5rem,6vw,4.5rem)] font-extrabold uppercase leading-none tracking-[-0.03em] text-[#e5e1e4]">
-            Our <span className="text-[#ff571a]">Services</span>
+          <p className="font-tech text-[13px] uppercase tracking-[0.3em] text-[#0868a8]">What We Do</p>
+          <h1 className="mt-3 font-display text-[clamp(2.5rem,6vw,4.5rem)] font-extrabold uppercase leading-none tracking-[-0.03em] text-[#0f172a]">
+            Our <span className="text-[#0868a8]">Services</span>
           </h1>
-          <p className="mt-4 max-w-xl text-[17px] leading-7 text-[#c6c6cf]">
+          <p className="mt-4 max-w-xl text-[17px] leading-7 text-[#475569]">
             A complete range of turbocharger services — from a precision repair to a brand-new
             OEM unit. All work carried out to professional workshop standards.
           </p>
@@ -77,26 +77,26 @@ export default function ServicesPage() {
             <Link
               key={svc.href}
               href={svc.href}
-              className="group grid grid-cols-1 border border-[#27272A] bg-[#1c1b1d] transition hover:border-[#ff571a]/40 md:grid-cols-[80px_1fr_auto]"
+              className="group grid grid-cols-1 border border-slate-200 bg-white transition hover:border-[#0868a8]/40 hover:shadow-md md:grid-cols-[80px_1fr_auto]"
             >
               {/* Tag */}
-              <div className="flex items-center justify-center border-b border-[#27272A] bg-[#201f22] px-6 py-5 md:border-b-0 md:border-r">
-                <span className="font-tech text-[10px] uppercase tracking-[0.26em] text-[#ff571a]">
+              <div className="flex items-center justify-center border-b border-slate-200 bg-slate-50 px-6 py-5 md:border-b-0 md:border-r">
+                <span className="font-tech text-[10px] uppercase tracking-[0.26em] text-[#0868a8]">
                   {svc.tag}
                 </span>
               </div>
 
               {/* Content */}
               <div className="px-6 py-6 md:py-7">
-                <h2 className="font-display text-[1.5rem] uppercase text-[#e5e1e4] transition group-hover:text-[#ff571a]">
+                <h2 className="font-display text-[1.5rem] uppercase text-[#0f172a] transition group-hover:text-[#0868a8]">
                   {svc.label}
                 </h2>
-                <p className="mt-2 max-w-2xl text-[14px] leading-7 text-[#929090]">{svc.summary}</p>
+                <p className="mt-2 max-w-2xl text-[14px] leading-7 text-[#64748b]">{svc.summary}</p>
                 <div className="mt-4 flex flex-wrap gap-3">
                   {svc.bullets.map((b) => (
                     <span
                       key={b}
-                      className="border border-[#27272A] bg-[#201f22] px-3 py-1 font-tech text-[10px] uppercase tracking-[0.16em] text-[#c6c6cf]"
+                      className="border border-[#bfdbfe] bg-[#eff6ff] px-3 py-1 font-tech text-[10px] uppercase tracking-[0.16em] text-[#0868a8]"
                     >
                       ✓ {b}
                     </span>
@@ -106,7 +106,7 @@ export default function ServicesPage() {
 
               {/* Arrow */}
               <div className="hidden items-center justify-center px-6 md:flex">
-                <span className="text-[1.5rem] text-[#5c4037] transition group-hover:text-[#ff571a]">
+                <span className="text-[1.5rem] text-[#cbd5e1] transition group-hover:text-[#0868a8]">
                   →
                 </span>
               </div>
@@ -116,17 +116,17 @@ export default function ServicesPage() {
       </section>
 
       {/* Bottom CTA */}
-      <section className="border-t border-[#27272A] bg-[#0e0e10]">
+      <section className="border-t border-slate-200 bg-[#f8fafc]">
         <div className="mx-auto max-w-[1200px] px-4 py-16 md:px-12">
           <div className="grid gap-8 md:grid-cols-2">
             <div>
-              <p className="font-tech text-[13px] uppercase tracking-[0.26em] text-[#ffb59e]">
+              <p className="font-tech text-[13px] uppercase tracking-[0.26em] text-[#0868a8]">
                 Not Sure Which Service?
               </p>
-              <h2 className="mt-2 font-display text-[2rem] uppercase text-[#e5e1e4]">
-                Talk to <span className="text-[#ff571a]">Our Team</span>
+              <h2 className="mt-2 font-display text-[2rem] uppercase text-[#0f172a]">
+                Talk to <span className="text-[#0868a8]">Our Team</span>
               </h2>
-              <p className="mt-3 text-[16px] leading-7 text-[#c6c6cf]">
+              <p className="mt-3 text-[16px] leading-7 text-[#475569]">
                 Our technicians will advise you on whether a repair, remanufacture or new unit
                 is the most cost-effective solution for your specific turbo failure.
               </p>
@@ -134,23 +134,23 @@ export default function ServicesPage() {
             <div className="flex flex-col justify-center gap-4">
               <a
                 href="tel:01279-817451"
-                className="flex items-center justify-between border border-[#27272A] bg-[#1c1b1d] px-6 py-4 transition hover:border-[#ff571a]/40"
+                className="flex items-center justify-between border border-slate-200 bg-white px-6 py-4 transition hover:border-[#0868a8]/40 hover:shadow-sm"
               >
                 <div>
-                  <p className="font-tech text-[10px] uppercase tracking-[0.2em] text-[#929090]">Phone</p>
-                  <p className="mt-1 font-display text-xl text-[#e5e1e4]">01279-817451</p>
+                  <p className="font-tech text-[10px] uppercase tracking-[0.2em] text-[#64748b]">Phone</p>
+                  <p className="mt-1 font-display text-xl text-[#0f172a]">01279-817451</p>
                 </div>
-                <span className="text-[#ff571a]">→</span>
+                <span className="text-[#0868a8]">→</span>
               </a>
               <a
                 href="mailto:contact@aceturbo.co.uk"
-                className="flex items-center justify-between border border-[#27272A] bg-[#1c1b1d] px-6 py-4 transition hover:border-[#ff571a]/40"
+                className="flex items-center justify-between border border-slate-200 bg-white px-6 py-4 transition hover:border-[#0868a8]/40 hover:shadow-sm"
               >
                 <div>
-                  <p className="font-tech text-[10px] uppercase tracking-[0.2em] text-[#929090]">Email</p>
-                  <p className="mt-1 font-display text-xl text-[#e5e1e4]">contact@aceturbo.co.uk</p>
+                  <p className="font-tech text-[10px] uppercase tracking-[0.2em] text-[#64748b]">Email</p>
+                  <p className="mt-1 font-display text-xl text-[#0f172a]">contact@aceturbo.co.uk</p>
                 </div>
-                <span className="text-[#ff571a]">→</span>
+                <span className="text-[#0868a8]">→</span>
               </a>
             </div>
           </div>

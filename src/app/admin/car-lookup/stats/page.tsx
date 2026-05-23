@@ -13,7 +13,7 @@ export default async function LookupStatsPage() {
 
   return (
     <main className="mx-auto max-w-[900px] px-4 py-10">
-      <h1 className="mb-5 text-4xl font-black text-slate-100">Lookup Stats Dashboard</h1>
+      <h1 className="mb-5 text-4xl font-extrabold text-[#0f172a]">Lookup Stats Dashboard</h1>
       <LookupStatsPanel
         stats={stats.map(([label, value], index) => ({
           label,

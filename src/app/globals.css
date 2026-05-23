@@ -3,13 +3,13 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
-  --ace-blue: #ff571a;
-  --ace-red: #ffb4ab;
-  --ace-ink: #e5e1e4;
-  --ace-paper: #131315;
-  --ace-steel: #353437;
-  --ace-warm: #ad897e;
+  color-scheme: light;
+  --ace-blue: #0868a8;
+  --ace-red: #93c5fd;
+  --ace-ink: #0f172a;
+  --ace-paper: #f8f9fa;
+  --ace-steel: #e2e8f0;
+  --ace-warm: #60a5fa;
 }
 
 * {
@@ -19,9 +19,9 @@
 body {
   margin: 0;
   background:
-    radial-gradient(circle at top left, rgba(255, 181, 158, 0.08), transparent 28%),
-    radial-gradient(circle at bottom right, rgba(255, 87, 26, 0.06), transparent 22%),
-    linear-gradient(180deg, #0e0e10 0%, var(--ace-paper) 100%);
+    radial-gradient(circle at top left, rgba(8, 104, 168, 0.05), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(8, 104, 168, 0.04), transparent 22%),
+    linear-gradient(180deg, #ffffff 0%, var(--ace-paper) 100%);
   color: var(--ace-ink);
   font-family: var(--font-inter), Inter, sans-serif;
 }
@@ -36,16 +36,16 @@ button {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255, 181, 158, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 181, 158, 0.06) 1px, transparent 1px);
+    linear-gradient(rgba(8, 104, 168, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(8, 104, 168, 0.04) 1px, transparent 1px);
   background-size: 28px 28px;
   pointer-events: none;
 }
 
 .ace-hero {
   background:
-    linear-gradient(135deg, rgba(14, 14, 16, 0.98), rgba(19, 19, 21, 0.96)),
-    linear-gradient(120deg, rgba(255, 181, 158, 0.08), rgba(255, 87, 26, 0.04));
+    linear-gradient(135deg, rgba(248, 249, 250, 0.98), rgba(241, 245, 249, 0.96)),
+    linear-gradient(120deg, rgba(8, 104, 168, 0.06), rgba(5, 75, 127, 0.03));
 }
 
 .ace-hero::before {
@@ -53,10 +53,10 @@ button {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(rgba(255, 181, 158, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 181, 158, 0.08) 1px, transparent 1px);
+    linear-gradient(rgba(8, 104, 168, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(8, 104, 168, 0.06) 1px, transparent 1px);
   background-size: 42px 42px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.75), transparent 92%);
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.5), transparent 92%);
 }
 
 .ace-hero::after {
@@ -66,14 +66,14 @@ button {
   top: 14%;
   width: min(32vw, 420px);
   aspect-ratio: 1;
-  border: 1px solid rgba(255, 87, 26, 0.18);
+  border: 1px solid rgba(8, 104, 168, 0.15);
   border-radius: 18px;
   background:
-    radial-gradient(circle at 38% 40%, rgba(255, 87, 26, 0.2), transparent 22%),
-    radial-gradient(circle at 72% 66%, rgba(255, 181, 158, 0.16), transparent 20%),
-    linear-gradient(135deg, rgba(27, 27, 30, 0.92), rgba(53, 52, 55, 0.3));
+    radial-gradient(circle at 38% 40%, rgba(8, 104, 168, 0.12), transparent 22%),
+    radial-gradient(circle at 72% 66%, rgba(147, 197, 253, 0.1), transparent 20%),
+    linear-gradient(135deg, rgba(248, 249, 250, 0.92), rgba(226, 232, 240, 0.3));
   transform: rotate(10deg);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 24px 80px rgba(8, 104, 168, 0.1);
 }
 
 .part-search {
@@ -102,8 +102,8 @@ button {
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(130deg, transparent 0 76%, rgba(255, 87, 26, 0.11) 76% 78%, transparent 78% 100%),
-    linear-gradient(130deg, transparent 0 84%, rgba(255, 181, 158, 0.09) 84% 86%, transparent 86% 100%);
+    linear-gradient(130deg, transparent 0 76%, rgba(8, 104, 168, 0.07) 76% 78%, transparent 78% 100%),
+    linear-gradient(130deg, transparent 0 84%, rgba(147, 197, 253, 0.06) 84% 86%, transparent 86% 100%);
 }
 
 .font-display {
@@ -119,13 +119,13 @@ button {
 }
 
 .hero-gradient {
-  background: linear-gradient(to right, rgba(9, 9, 11, 0.95) 30%, rgba(9, 9, 11, 0.42) 100%);
+  background: linear-gradient(to right, rgba(248, 249, 250, 0.95) 30%, rgba(248, 249, 250, 0.42) 100%);
 }
 
 .machined-border {
-  border: 1px solid rgba(173, 137, 126, 0.28);
+  border: 1px solid rgba(8, 104, 168, 0.18);
 }
 
 .glow-orange {
-  filter: drop-shadow(0 0 8px rgba(255, 87, 26, 0.4));
+  filter: drop-shadow(0 0 8px rgba(8, 104, 168, 0.35));
 }

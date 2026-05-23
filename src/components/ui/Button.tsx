@@ -3,10 +3,10 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "bg-aceBlue text-[#081018]",
-  secondary: "border border-slate-700 bg-[#0f151b] text-slate-200",
-  danger: "border border-red-900 bg-red-950/70 text-red-100",
-  ghost: "text-slate-300 hover:bg-slate-800/60"
+  primary: "bg-aceBlue text-white hover:bg-aceBlueDeep",
+  secondary: "border border-[#bfdbfe] bg-[#eff6ff] text-[#334155] hover:bg-[#dbeafe]",
+  danger: "border border-red-300 bg-red-50 text-red-700 hover:bg-red-100",
+  ghost: "text-[#475569] hover:bg-slate-100"
 };
 
 export function Button({

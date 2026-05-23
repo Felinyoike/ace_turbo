@@ -49,17 +49,17 @@ const brands = [
 
 export default function BrandsPage() {
   return (
-    <main className="min-h-screen bg-[#131315]">
+    <main className="min-h-screen bg-white">
 
       {/* Header */}
-      <section className="relative overflow-hidden border-b border-[#27272A] bg-[#1c1b1d]">
+      <section className="relative overflow-hidden border-b border-slate-200 bg-[#f8fafc]">
         <div className="machine-lines absolute inset-0 opacity-30" aria-hidden="true" />
         <div className="relative mx-auto max-w-[1200px] px-4 py-16 md:px-12">
-          <p className="font-tech text-[13px] uppercase tracking-[0.3em] text-[#ffb59e]">Turbo Finder</p>
-          <h1 className="mt-3 font-display text-[clamp(2.5rem,6vw,4.5rem)] font-extrabold uppercase leading-none tracking-[-0.03em] text-[#e5e1e4]">
-            Turbocharger <span className="text-[#ff571a]">Brands</span>
+          <p className="font-tech text-[13px] uppercase tracking-[0.3em] text-[#0868a8]">Turbo Finder</p>
+          <h1 className="mt-3 font-display text-[clamp(2.5rem,6vw,4.5rem)] font-extrabold uppercase leading-none tracking-[-0.03em] text-[#0f172a]">
+            Turbocharger <span className="text-[#0868a8]">Brands</span>
           </h1>
-          <p className="mt-4 max-w-xl text-[17px] leading-7 text-[#c6c6cf]">
+          <p className="mt-4 max-w-xl text-[17px] leading-7 text-[#475569]">
             We supply, repair and remanufacture turbochargers from all major manufacturers.
             Select a brand to explore the models we cover.
           </p>
@@ -72,32 +72,32 @@ export default function BrandsPage() {
           {brands.map((brand, i) => (
             <article
               key={brand.slug}
-              className="group flex flex-col border border-[#27272A] bg-[#1c1b1d] transition hover:border-[#ff571a]/40"
+              className="group flex flex-col border border-slate-200 bg-white transition hover:border-[#0868a8]/40 hover:shadow-md"
             >
               {/* Brand header */}
-              <div className="relative overflow-hidden border-b border-[#27272A] bg-[#201f22] p-6">
-                <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-[#ff571a]/6 blur-2xl" aria-hidden="true" />
-                <p className="font-tech text-[10px] uppercase tracking-[0.26em] text-[#ffb59e]">
+              <div className="relative overflow-hidden border-b border-slate-200 bg-slate-50 p-6">
+                <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-[#0868a8]/6 blur-2xl" aria-hidden="true" />
+                <p className="font-tech text-[10px] uppercase tracking-[0.26em] text-[#0868a8]">
                   {String(i + 1).padStart(2, "0")}
                 </p>
-                <h2 className="mt-1 font-display text-[2rem] uppercase text-[#e5e1e4] transition group-hover:text-[#ff571a]">
+                <h2 className="mt-1 font-display text-[2rem] uppercase text-[#0f172a] transition group-hover:text-[#0868a8]">
                   {brand.name}
                 </h2>
               </div>
 
               {/* Brand body */}
               <div className="flex flex-1 flex-col gap-5 p-6">
-                <p className="text-[14px] leading-7 text-[#929090]">{brand.desc}</p>
+                <p className="text-[14px] leading-7 text-[#64748b]">{brand.desc}</p>
 
                 <div>
-                  <p className="mb-2 font-tech text-[10px] uppercase tracking-[0.2em] text-[#ffb59e]">
+                  <p className="mb-2 font-tech text-[10px] uppercase tracking-[0.2em] text-[#0868a8]">
                     Common Applications
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {brand.applications.map((app) => (
                       <span
                         key={app}
-                        className="border border-[#27272A] bg-[#201f22] px-3 py-1 font-tech text-[10px] uppercase tracking-[0.16em] text-[#c6c6cf]"
+                        className="border border-[#bfdbfe] bg-[#eff6ff] px-3 py-1 font-tech text-[10px] uppercase tracking-[0.16em] text-[#0868a8]"
                       >
                         {app}
                       </span>
@@ -108,13 +108,13 @@ export default function BrandsPage() {
                 <div className="mt-auto flex gap-3 pt-2">
                   <Link
                     href={`/turbos?brand=${brand.slug}`}
-                    className="flex-1 border border-[#5c4037] py-2.5 text-center font-tech text-[11px] uppercase tracking-[0.18em] text-[#e5e1e4] transition hover:bg-white/5"
+                    className="flex-1 border border-[#bfdbfe] py-2.5 text-center font-tech text-[11px] uppercase tracking-[0.18em] text-[#334155] transition hover:bg-[#eff6ff]"
                   >
                     Browse Units
                   </Link>
                   <a
                     href="tel:01279-817451"
-                    className="flex-1 bg-[#ff571a] py-2.5 text-center font-tech text-[11px] uppercase tracking-[0.18em] text-[#3a0b00] transition hover:brightness-110"
+                    className="flex-1 bg-[#0868a8] py-2.5 text-center font-tech text-[11px] uppercase tracking-[0.18em] text-white transition hover:bg-[#054b7f]"
                   >
                     Get a Quote
                   </a>
@@ -126,15 +126,15 @@ export default function BrandsPage() {
       </section>
 
       {/* Can't find your brand CTA */}
-      <section className="border-t border-[#27272A] bg-[#0e0e10]">
+      <section className="border-t border-slate-200 bg-[#f8fafc]">
         <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-6 px-4 py-16 text-center md:px-12">
-          <p className="font-tech text-[13px] uppercase tracking-[0.26em] text-[#ffb59e]">
+          <p className="font-tech text-[13px] uppercase tracking-[0.26em] text-[#0868a8]">
             Not Listed?
           </p>
-          <h2 className="font-display text-[2rem] uppercase text-[#e5e1e4]">
-            We Cover <span className="text-[#ff571a]">All Brands</span>
+          <h2 className="font-display text-[2rem] uppercase text-[#0f172a]">
+            We Cover <span className="text-[#0868a8]">All Brands</span>
           </h2>
-          <p className="max-w-lg text-[16px] leading-7 text-[#c6c6cf]">
+          <p className="max-w-lg text-[16px] leading-7 text-[#475569]">
             If your turbo brand or model isn&apos;t listed here, call us directly. We have access
             to parts and technical data for virtually every turbocharger ever fitted to a
             road vehicle.
@@ -142,13 +142,13 @@ export default function BrandsPage() {
           <div className="flex flex-wrap justify-center gap-4">
             <a
               href="tel:01279-817451"
-              className="inline-flex items-center gap-2 bg-[#ff571a] px-7 py-3.5 font-tech text-[12px] uppercase tracking-[0.22em] text-[#3a0b00] transition hover:brightness-110"
+              className="inline-flex items-center gap-2 bg-[#0868a8] px-7 py-3.5 font-tech text-[12px] uppercase tracking-[0.22em] text-white transition hover:bg-[#054b7f]"
             >
               Call 01279-817451
             </a>
             <a
               href="mailto:contact@aceturbo.co.uk"
-              className="inline-flex items-center gap-2 border border-[#5c4037] px-7 py-3.5 font-tech text-[12px] uppercase tracking-[0.22em] text-[#e5e1e4] transition hover:bg-white/5"
+              className="inline-flex items-center gap-2 border border-[#bfdbfe] px-7 py-3.5 font-tech text-[12px] uppercase tracking-[0.22em] text-[#334155] transition hover:bg-[#eff6ff]"
             >
               Email an Enquiry
             </a>

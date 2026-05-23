@@ -1,50 +1,51 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 
 const slides = [
-  {
-    src: "/images/hero-turbo.png",
-    alt: "Precision-engineered turbocharger on workshop bench",
-    filter: "grayscale(65%) contrast(1.1) brightness(0.6) saturate(1.2)"
-  },
-  {
-    src: "/images/turbo1.png",
-    alt: "High-performance turbocharger assembly in engine bay",
-    filter: "grayscale(40%) contrast(1.2) brightness(0.8) saturate(1.4)"
-  }
+  { src: "/images/blueturbo.png", alt: "Precision-engineered turbocharger" },
+  { src: "/images/blueturbo2.png", alt: "High-performance turbocharger assembly" },
 ];
 
 export function HeroImageCarousel() {
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    const timer = setTimeout(() => {
       setCurrent((prev) => (prev + 1) % slides.length);
     }, 5000);
-    return () => clearInterval(timer);
-  }, []);
+    return () => clearTimeout(timer);
+  }, [current]);
 
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden">
+    <div className="absolute inset-0 z-0 overflow-hidden bg-[#0a1628]">
       {slides.map((slide, idx) => (
         <div
           key={slide.src}
-          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-            idx === current ? "opacity-100" : "opacity-0"
-          }`}
+          style={{
+            position: "absolute",
+            inset: 0,
+            opacity: idx === current ? 1 : 0,
+            transition: "opacity 1s ease-in-out",
+            zIndex: idx === current ? 1 : 0,
+          }}
+          aria-hidden={idx !== current}
         >
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src={slide.src}
             alt={slide.alt}
-            fill
-            className={`object-cover object-center transition-transform duration-[6000ms] ease-out ${
-              idx === current ? "scale-105" : "scale-100"
-            }`}
-            style={{ filter: slide.filter }}
-            priority={idx === 0}
-            sizes="(max-width: 1024px) 0vw, 50vw"
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center",
+              filter: "brightness(0.72) saturate(1.15)",
+              transform: idx === current ? "scale(1.05)" : "scale(1)",
+              transition: "transform 6s ease-out",
+            }}
           />
         </div>
       ))}
@@ -55,12 +56,15 @@ export function HeroImageCarousel() {
           <button
             key={idx}
             onClick={() => setCurrent(idx)}
-            className={`transition-all duration-300 ${
-              idx === current
-                ? "h-0.5 w-6 bg-[#ff571a]"
-                : "h-0.5 w-2 bg-[#929090]/50"
-            }`}
-            aria-label={`Slide ${idx + 1}`}
+            style={{
+              height: 2,
+              width: idx === current ? 24 : 8,
+              backgroundColor: idx === current ? "#60a5fa" : "rgba(255,255,255,0.4)",
+              transition: "all 300ms",
+              border: "none",
+              cursor: "pointer",
+            }}
+            aria-label={"Slide " + (idx + 1)}
           />
         ))}
       </div>
