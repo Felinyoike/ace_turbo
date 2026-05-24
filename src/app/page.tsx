@@ -44,7 +44,7 @@ export default function HomePage() {
               PRECISION CORE PARTS
             </h2>
           </div>
-          <Link href="/turbos/brands" className="inline-flex items-center gap-2 border border-[#0868a8] bg-white px-5 py-2.5 font-tech text-[11px] uppercase tracking-[0.2em] text-[#0868a8] transition-all hover:bg-[#0868a8] hover:text-white mt-6 md:mt-0">
+          <Link href="/turbos" className="inline-flex items-center gap-2 border border-[#0868a8] bg-white px-5 py-2.5 font-tech text-[11px] uppercase tracking-[0.2em] text-[#0868a8] transition-all hover:bg-[#0868a8] hover:text-white mt-6 md:mt-0">
             VIEW FULL CATALOG <span>&rarr;</span>
           </Link>
         </div>

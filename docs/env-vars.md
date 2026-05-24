@@ -37,6 +37,8 @@ CF_ZONE_ID=<Zone ID from Cloudflare dashboard Overview tab>
 
 ## Redis (optional — falls back to in-process if not set)
 
+> **Note:** Without `REDIS_URL`, rate limiting uses in-memory buckets (per-process). This is fine for dev and single-instance deploys but won't share state across multiple serverless invocations.
+
 ```
 REDIS_URL=redis://default:PASSWORD@HOST:PORT
 ```
@@ -70,3 +72,17 @@ NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-XXXXXXXXXXXXXXXX
 # Override source file path for npm run migrate:existing
 MIGRATION_SOURCE=/absolute/path/to/your-export.json
 ```
+
+---
+
+## Minimum for E2E Tests
+
+To run `npm run test:e2e` with all tests passing, you need at minimum:
+
+```
+DATABASE_URL=mysql://user:pass@host:3306/dbname
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=any-random-string-for-local-dev
+```
+
+Without `DATABASE_URL`, cart/checkout/turbo-search tests will timeout. All security, homepage, and carousel tests pass without any env vars.
