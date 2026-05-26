@@ -1,10 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+
+type Step = "form" | "paypal";
 
 export function CheckoutPanel() {
+  const [step, setStep] = useState<Step>("form");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [orderId, setOrderId] = useState<number | null>(null);
+  const [paypalOrderId, setPaypalOrderId] = useState<string | null>(null);
+
+  const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "test";
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -23,21 +31,70 @@ export function CheckoutPanel() {
       });
       const data = await response.json();
 
-      if (data.checkoutUrl) {
+      if (!response.ok) {
+        setMessage(data.error || "Failed to create order.");
+        return;
+      }
+
+      if (data.mode === "mock") {
         window.location.href = data.checkoutUrl;
         return;
       }
-      if (data.error) {
-        setMessage(data.error);
-      } else {
-        setMessage("Order created successfully.");
-        window.dispatchEvent(new CustomEvent("cart-updated"));
-      }
+
+      setOrderId(data.order.id);
+      setPaypalOrderId(data.paypalOrderId);
+      setStep("paypal");
     } catch {
       setMessage("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
+  }
+
+  async function captureOrder(paypalOId: string) {
+    const response = await fetch(`/api/orders/${orderId}/capture`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ paypalOrderId: paypalOId })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Capture failed");
+    return data;
+  }
+
+  if (step === "paypal" && paypalOrderId) {
+    return (
+      <div className="grid gap-4 border border-slate-200 bg-white p-6">
+        <h2 className="text-lg font-bold text-[#0f172a]">Complete Payment</h2>
+        <p className="text-sm text-[#475569]">
+          Your order has been reserved. Complete payment via PayPal below.
+        </p>
+        <PayPalScriptProvider options={{ clientId: paypalClientId, currency: "GBP" }}>
+          <PayPalButtons
+            style={{ layout: "vertical", color: "gold", shape: "rect", label: "pay" }}
+            createOrder={() => Promise.resolve(paypalOrderId)}
+            onApprove={async (data) => {
+              try {
+                await captureOrder(data.orderID);
+                window.location.href = "/account/orders?success=1";
+              } catch (err) {
+                setMessage(String(err));
+              }
+            }}
+            onError={(err) => setMessage("PayPal error: " + String(err))}
+            onCancel={() => setMessage("Payment cancelled. You can try again.")}
+          />
+        </PayPalScriptProvider>
+        <button
+          className="text-sm text-[#475569] underline hover:text-[#0f172a]"
+          type="button"
+          onClick={() => { setStep("form"); setMessage(""); }}
+        >
+          ← Change delivery details
+        </button>
+        {message ? <p className="text-sm text-red-500">{message}</p> : null}
+      </div>
+    );
   }
 
   return (
@@ -68,9 +125,9 @@ export function CheckoutPanel() {
         type="submit"
         disabled={loading}
       >
-        {loading ? "Processing..." : "Continue to Payment"}
+        {loading ? "Creating order..." : "Continue to PayPal"}
       </button>
-      {message ? <p className="text-sm text-[#475569]">{message}</p> : null}
+      {message ? <p className="text-sm text-red-500">{message}</p> : null}
     </form>
   );
 }

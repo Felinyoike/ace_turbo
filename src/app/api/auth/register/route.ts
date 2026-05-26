@@ -13,7 +13,7 @@ const schema = z.object({
   lastName: z.string().min(1).max(40),
   phone: z.string().max(40).optional(),
   company: z.string().max(80).optional(),
-  role: z.enum(["customer", "b2b"]).default("customer")
+  role: z.enum(["customer", "b2b"]).default("customer").transform(() => "customer" as const)
 });
 
 export async function POST(request: Request) {

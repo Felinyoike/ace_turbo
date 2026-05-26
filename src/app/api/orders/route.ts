@@ -1,9 +1,8 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
-import Stripe from "stripe";
 import { orderSchema } from "@/validators/orderSchema";
 import { createOrderFromCart, listOrdersForCurrentUser } from "@/lib/orders";
-import { stripe } from "@/lib/stripe";
+import { createPayPalOrder, isPayPalConfigured } from "@/lib/paypal";
 import { jsonError } from "@/lib/http";
 import { rateLimit } from "@/lib/rateLimit";
 
@@ -25,7 +24,7 @@ export async function POST(request: Request) {
 
   if (!order) return NextResponse.json({ error: "Failed to create order" }, { status: 500 });
 
-  if (!stripe) {
+  if (!isPayPalConfigured()) {
     return NextResponse.json({
       order,
       checkoutUrl: `/checkout?order=${order.id}&mock=1`,
@@ -33,25 +32,15 @@ export async function POST(request: Request) {
     });
   }
 
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    success_url: `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/account/orders?success=1`,
-    cancel_url: `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/checkout?cancel=1`,
-    customer_email: order.email,
-    metadata: { orderId: String(order.id) },
-    line_items: order.items.map((item) => ({
-      quantity: item.quantity,
-      price_data: {
-        currency: "gbp",
-        unit_amount: Math.round(item.unitPrice * 100),
-        product_data: { name: item.name, metadata: { sku: item.sku } }
-      }
-    }))
+  const paypalOrder = await createPayPalOrder({
+    id: order.id,
+    total: order.total,
+    items: order.items
   });
 
   return NextResponse.json({
-    order: { ...order, stripeSessionId: session.id },
-    checkoutUrl: session.url,
-    mode: "stripe"
+    order,
+    paypalOrderId: paypalOrder.id,
+    mode: "paypal"
   });
 }

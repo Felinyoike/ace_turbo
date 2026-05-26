@@ -1,4 +1,4 @@
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isB2B } from "@/lib/auth";
 import { getOrCreateSessionId } from "@/lib/session";
 import { readAppData, updateAppData, type StoredCart } from "@/lib/persistence";
 import { getTurboById } from "@/lib/data-access";
@@ -28,6 +28,9 @@ export async function getCurrentCart() {
 }
 
 export async function addCartItem(turboId: number, quantity: number) {
+  const turbo = await getTurboById(turboId);
+  if (!turbo) throw new Error("Turbo not found");
+  if (turbo.stock < quantity) throw new Error(`Only ${turbo.stock} units in stock`);
   const user = await getSessionUser();
   return updateAppData((data) => {
     const sessionId = getOrCreateSessionId();
@@ -37,7 +40,9 @@ export async function addCartItem(turboId: number, quantity: number) {
       data.carts.push(cart);
     }
     const item = cart.items.find((entry) => entry.turboId === turboId);
-    if (item) item.quantity += quantity;
+    const newQty = item ? item.quantity + quantity : quantity;
+    if (newQty > turbo!.stock) throw new Error(`Only ${turbo!.stock} units in stock`);
+    if (item) item.quantity = newQty;
     else cart.items.push({ turboId, quantity });
     cart.updatedAt = new Date().toISOString();
     return cart;
@@ -73,18 +78,20 @@ export async function clearCart() {
 
 export async function buildCartView() {
   const cart = await getCurrentCart();
+  const user = await getSessionUser();
+  const trade = isB2B(user);
   const items = (await Promise.all(cart.items.map(async (item) => {
     const turbo = await getTurboById(item.turboId);
-    return turbo
-      ? {
-          turboId: turbo.id,
-          sku: turbo.sku,
-          name: `${turbo.make} ${turbo.model} ${turbo.engine}`,
-          quantity: item.quantity,
-          unitPrice: turbo.price,
-          lineTotal: turbo.price * item.quantity
-        }
-      : null;
+    if (!turbo) return null;
+    const unitPrice = trade && turbo.tradePrice != null ? turbo.tradePrice : turbo.price;
+    return {
+      turboId: turbo.id,
+      sku: turbo.sku,
+      name: `${turbo.make} ${turbo.model} ${turbo.engine}`,
+      quantity: item.quantity,
+      unitPrice,
+      lineTotal: unitPrice * item.quantity
+    };
   }))).filter(Boolean);
   const total = items.reduce((sum, item) => sum + (item?.lineTotal || 0), 0);
   return { cart, items, total };
