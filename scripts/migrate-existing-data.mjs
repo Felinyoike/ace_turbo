@@ -108,6 +108,9 @@ async function readJsonSource() {
 
 async function importToMySQL(source) {
   const conn = await mysql.createConnection(process.env.DATABASE_URL);
+  const carConn = process.env.DATABASE2_URL
+    ? await mysql.createConnection(process.env.DATABASE2_URL)
+    : conn;
   const counts = { turbos: 0, vehicles: 0, users: 0, blogPosts: 0 };
 
   try {
@@ -129,7 +132,7 @@ async function importToMySQL(source) {
     }
 
     for (const row of source.vehicles.map(normaliseVehicle)) {
-      await conn.execute(
+      await carConn.execute(
         `INSERT INTO vehicles (registration, make, model, year, engine, fuel, colour, source)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
          ON DUPLICATE KEY UPDATE
@@ -163,6 +166,7 @@ async function importToMySQL(source) {
     return counts;
   } finally {
     await conn.end();
+    if (carConn !== conn) await carConn.end();
   }
 }
 

@@ -1,4 +1,4 @@
-import { pool } from "@/lib/db";
+import { pool, carPool } from "@/lib/db";
 import {
   nextId,
   readAppData,
@@ -410,7 +410,7 @@ export async function deleteTurboRecord(id: number) {
 
 export async function findVehicleByRegistration(registration: string) {
   if (useMysql()) {
-    const [rows] = await pool.query("SELECT * FROM vehicles WHERE registration = ? LIMIT 1", [registration]);
+    const [rows] = await carPool.query("SELECT * FROM vehicles WHERE registration = ? LIMIT 1", [registration]);
     const row = (rows as any[])[0];
     return row
       ? {
@@ -439,13 +439,13 @@ export async function upsertVehicleRecord(input: {
   source: "api" | "db" | "cache";
 }) {
   if (useMysql()) {
-    await pool.query(
+    await carPool.query(
       `INSERT INTO vehicles (registration, make, model, year, engine, fuel, colour, source) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?) 
        ON DUPLICATE KEY UPDATE make=VALUES(make), model=VALUES(model), year=VALUES(year), engine=VALUES(engine), fuel=VALUES(fuel), colour=VALUES(colour), source=VALUES(source)`,
       [input.registration, input.make, input.model, input.year, input.engine, input.fuel, input.colour, input.source]
     );
-    const [rows] = await pool.query("SELECT * FROM vehicles WHERE registration = ?", [input.registration]);
+    const [rows] = await carPool.query("SELECT * FROM vehicles WHERE registration = ?", [input.registration]);
     return (rows as any[])[0];
   }
   return input;
@@ -473,13 +473,13 @@ export async function createLookupRecord(input: {
       vehicleId = vehicle.id;
     }
     
-    const [result] = await pool.query(
+    const [result] = await carPool.query(
       "INSERT INTO lookup_log (registration, source, user_ip, vehicleId) VALUES (?, ?, ?, ?)",
       [input.registration, input.source, input.userIp, vehicleId]
     );
     
     const id = (result as any).insertId;
-    const [rows] = await pool.query(
+    const [rows] = await carPool.query(
       "SELECT l.*, v.make as v_make, v.model as v_model, v.year as v_year, v.engine as v_engine, v.fuel as v_fuel, v.colour as v_colour FROM lookup_log l LEFT JOIN vehicles v ON l.vehicleId = v.id WHERE l.id = ?",
       [id]
     );
@@ -505,7 +505,7 @@ export async function createLookupRecord(input: {
 
 export async function getLookupRecords() {
   if (useMysql()) {
-    const [rows] = await pool.query(
+    const [rows] = await carPool.query(
       "SELECT l.*, v.make as v_make, v.model as v_model, v.year as v_year, v.engine as v_engine, v.fuel as v_fuel, v.colour as v_colour FROM lookup_log l LEFT JOIN vehicles v ON l.vehicleId = v.id ORDER BY l.timestamp DESC"
     );
     return (rows as any[]).map((row) => {

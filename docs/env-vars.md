@@ -5,13 +5,18 @@ Copy these into `.env.local` for local dev, and into your Hostinger / Vercel pro
 ## Core (required before launch)
 
 ```
-# MySQL — Hostinger format:
+# MySQL — Hostinger format (main app: turbos, users, orders, sessions):
 DATABASE_URL=mysql://DB_USER:DB_PASSWORD@DB_HOST:3306/DB_NAME
+
+# MySQL — Car data database (vehicles, lookup_log):
+DATABASE2_URL=mysql://DB_USER:DB_PASSWORD@DB_HOST:3306/CAR_DB_NAME
 
 # App base URL (no trailing slash)
 NEXTAUTH_URL=https://aceturbo.co.uk
 NEXTAUTH_SECRET=<generate with: openssl rand -base64 32>
 ```
+
+> **Note:** If `DATABASE2_URL` is not set, the car data queries fall back to using `DATABASE_URL`.
 
 ## Payments — Stripe
 
