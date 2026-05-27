@@ -1,0 +1,67 @@
+
+
+
+<div class='portform' style='width: 90%; margin-left:5%'>
+
+<form method='post' action='https://aceturbo.co.uk/valreg.php' >
+    <div class='form-group'>
+        <!--<label for='sid' style="font-weight:bold; margin-left:-20px">REGISTRATION NUMBER :</label>-->
+        <div class="row" style="margin-top:12px">
+    <div class="col-12 col-sm-8" style=" margin:0; padding:0">
+        <input style="background-color: #ffd800; width:100%;"   type='text' name='REG' class='form-control' id='sid' placeholder='YOUR REG' required/>
+        </div>
+        <div class="col-12 col-sm-4" id='reggo' style="margin-left:0; padding-left:0; ">
+        <button style='width:70%; background-color:#11428F; margin-left:0 !important; height:95%; border-radius:8px;' class='button btn-danger' id='regb' name='regb' type='submit'><span>Go!</span></button>
+        </div>
+    </div>
+    
+    </div>
+</form>
+<div class='separator'>OR</div>
+<form method='post' action='https://aceturbo.co.uk/valturbo.php' >
+<div class='form-group'>
+    <label for='turbo' style='font-weight:bold; margin-left:-30px'>Turbo Search:</label>
+    <div class='row' style='margin-top:0px'>
+<div class='col-12 col-sm-8' style=' margin:0; padding:0'>
+    <input style='background-image: linear-gradient(to bottom right, #2cadec, #0a4780);; width:100%; border: 1px solid black'   type='text' name='turbo' class='form-control' id='turbo' placeholder='Turbo Number' required/>
+    </div>
+    <div class='col-12 col-sm-4' id='turbogo' style='margin-left:0; padding-left:0; '>
+  <button style='width:70%; background-color:#11428F; margin-left:0 !important; height:95%; border-radius:8px;' class='button btn-danger'  id='turbob' name='turb' type='submit'><span>Go!</span></button>
+  </div>
+</div>
+
+</div>
+</form>
+    <div class='separator'>OR</div>
+    <form style='text-align:center; width:85%' method='post' action='https://aceturbo.co.uk/valvehicle.php' >
+    <p style='font-weight:bold; color:black; font-size:18px; margin-top:0px; padding-top:0px; margin-left:20%'>Select Your Vehicle</p>
+        <div class='form-group'>
+            <select name='make' id='make' class='form-control' onchange='chooseModel1(this.value)'>
+                <option disabled selected value='0'>Select Make:</option><option value = '1009'>Abarth</option><option value = '5'>Alfa Romeo</option><option value = '10'>Audi</option><option value = '20'>BMW</option><option value = '1014'>BOUDOUIN</option><option value = '15'>Bentley</option><option value = '25'>Buick</option><option value = '1027'>Cadillac</option><option value = '1026'>Caterpillar</option><option value = '30'>Chevrolet</option><option value = '35'>Chrysler</option><option value = '40'>Citroen</option><option value = '1029'>Cupra </option><option value = '1033'>DEUTZ</option><option value = '1006'>DS</option><option value = '1003'>Dacia</option><option value = '45'>Daewoo</option><option value = '50'>Daihatsu</option><option value = '55'>Dodge</option><option value = '60'>Ferrari</option><option value = '65'>Fiat</option><option value = '70'>Fiat Allis</option><option value = '75'>Fiat Iveco</option><option value = '1031'>Fisker</option><option value = '80'>Ford</option><option value = '85'>Honda</option><option value = '95'>Hyundai</option><option value = '1013'>Infiniti</option><option value = '100'>Isuzu</option><option value = '105'>Iveco</option><option value = '1001'>Iveco-Sofim</option><option value = '110'>Jaguar</option><option value = '115'>Jeep</option><option value = '120'>Kia</option><option value = '135'>LDV</option><option value = '140'>LEXUS</option><option value = '125'>Lancia</option><option value = '130'>Land Rover</option><option value = '1005'>Lincoln</option><option value = '1032'>London Taxi </option><option value = '145'>Lotus</option><option value = '1028'>MAN</option><option value = '170'>MG</option><option value = '1012'>MITSUBISHI FUSO TRUCK & BUS</option><option value = '1034'>Make</option><option value = '150'>Maserati</option><option value = '155'>Mazda</option><option value = '1004'>Mercedes - Benz (Commercial)</option><option value = '165'>Mercedes-Benz</option><option value = '175'>Mini</option><option value = '180'>Mitsubishi</option><option value = '185'>Nissan</option><option value = '190'>OPEL VAUXHALL</option><option value = '195'>Peugeot</option><option value = '200'>Pontiac</option><option value = '205'>Porsche</option><option value = '215'>Puch</option><option value = '220'>Renault</option><option value = '225'>Roewe</option><option value = '230'>Rover</option><option value = '240'>Saab</option><option value = '1030'>Saturn</option><option value = '245'>Seat</option><option value = '250'>Skoda</option><option value = '255'>Smart</option><option value = '260'>SsangYong</option><option value = '265'>Subaru</option><option value = '270'>Suzuki</option><option value = '280'>Toyota</option><option value = '290'>Volkswagen</option><option value = '295'>Volvo</option><option value = '1015'>Volvo Truck </option></select>
+        </div>
+        <div class='form-group'>
+            <select name='model' id='model1' class='form-control' onchange='chooseYear1(this.value)'>
+                <option value='' disabled selected>Select Model:</option>
+                
+            </select>
+        </div>
+        <div class='form-group'>
+            <select name='year' id='year1' class='form-control' onchange='chooseEngine1(this.value)'>
+                <option value='' selected>Select Year</option>
+            </select>
+        </div>
+        <div class='form-group'>
+            <select name='engine' id='engine1' class='form-control' onchange='chooseBHP1(this.value)'>
+                <option value='' selected>Engine Size</option>
+            </select>
+        </div>
+        <div class='form-group'>
+            <select name='bhp' id='bhp1' class='form-control' onchange=''>
+                <option value='' selected>Select BHP</option>
+            </select>
+        </div>
+
+        <button style='margin-left:30px; background-color:#11428F; width:60%' id='vehgo' class='button' name='reg' type='submit'><span>Go!</span></button>
+    
+    </form>
+</div>

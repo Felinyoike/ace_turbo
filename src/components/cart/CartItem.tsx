@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { trackRemoveFromCart } from "@/lib/analytics";
 
 export type CartLineItem = {
   turboId: number;
@@ -36,6 +37,7 @@ export function CartItem({ item, onUpdate }: { item: CartLineItem; onUpdate?: ()
       body: JSON.stringify({ turboId: item.turboId, quantity: 0 })
     });
     setLoading(false);
+    trackRemoveFromCart({ id: item.turboId, name: item.name, price: item.unitPrice, quantity: item.quantity });
     window.dispatchEvent(new CustomEvent("cart-updated"));
     if (onUpdate) onUpdate();
   }

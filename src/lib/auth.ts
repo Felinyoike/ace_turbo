@@ -130,6 +130,13 @@ export async function requireSessionUser() {
   return user;
 }
 
+export async function requireAdmin() {
+  const user = await getSessionUser();
+  if (!user) throw new Error("Authentication required");
+  if (user.role !== "admin") throw new Error("Admin access required");
+  return user;
+}
+
 export function isAdmin(user: SessionUser | null) {
   return user?.role === "admin";
 }

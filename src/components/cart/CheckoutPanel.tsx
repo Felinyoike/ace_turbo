@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { trackBeginCheckout, trackPurchase } from "@/lib/analytics";
 
 type Step = "form" | "paypal";
 
@@ -44,6 +45,7 @@ export function CheckoutPanel() {
       setOrderId(data.order.id);
       setPaypalOrderId(data.paypalOrderId);
       setStep("paypal");
+      trackBeginCheckout(data.order.total || 0, data.order.items || []);
     } catch {
       setMessage("Network error. Please try again.");
     } finally {
@@ -75,7 +77,8 @@ export function CheckoutPanel() {
             createOrder={() => Promise.resolve(paypalOrderId)}
             onApprove={async (data) => {
               try {
-                await captureOrder(data.orderID);
+                const captureData = await captureOrder(data.orderID);
+                trackPurchase(orderId || 0, captureData.order?.total || 0, captureData.order?.items || []);
                 window.location.href = "/account/orders?success=1";
               } catch (err) {
                 setMessage(String(err));

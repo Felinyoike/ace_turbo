@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { trackAddToCart } from "@/lib/analytics";
 
-export function AddToCartButton({ turboId }: { turboId: number }) {
+export function AddToCartButton({ turboId, turboName, price }: { turboId: number; turboName?: string; price?: number }) {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -19,6 +20,7 @@ export function AddToCartButton({ turboId }: { turboId: number }) {
       if (response.ok) {
         setMessage("Added to cart.");
         window.dispatchEvent(new CustomEvent("cart-updated"));
+        trackAddToCart({ id: turboId, name: turboName || `Turbo #${turboId}`, price: price || 0, quantity: 1 });
       } else {
         setMessage(data.error || "Failed to add.");
       }

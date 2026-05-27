@@ -13,7 +13,7 @@ Implemented in the repo
 - Applied BOOSTFORGE design system strictly using Tailwind CSS (dark themes, specific typography)
 - Resolved Next.js build errors caused by static analysis of `mysql2` parsing invalid `DATABASE_URL` structures
 - Real persistent shopping cart
-- Real Stripe checkout and webhook fulfilment, when Stripe env vars are configured
+- Real PayPal checkout (create order + capture) and webhook fulfilment, when PayPal env vars are configured
 - Order confirmation emails and invoice PDFs
 - User registration, login, logout, order history, and invoice downloads
 - Protected B2B trade pricing
@@ -91,7 +91,7 @@ Remaining real-world activation items
 - Local development still falls back to file/in-process behavior by design.
 
 6. Third-party commerce/marketing integrations require credentials
-- Stripe, SendGrid, DVLA, eBay, GA4, GTM, AdSense, and Cloudflare code paths are present.
+- PayPal, SendGrid, DVLA, eBay, GA4, GTM, AdSense, and Cloudflare code paths are present.
 - They become live only after their env vars are configured and tested in deployment.
 
 Latest E2E test results (2026-05-24)
@@ -117,13 +117,27 @@ Key findings:
 - SQL injection probing confirmed safe across all 5 payloads
 - Redis not required — in-memory fallback works fine for dev/test
 
+Recent changes (2026-05-27)
+
+- Replaced Stripe payment gateway with PayPal (REST API v2 + @paypal/react-paypal-js)
+- New files: `src/lib/paypal.ts`, `src/app/api/orders/[id]/capture/route.ts`, `src/app/api/webhooks/paypal/route.ts`
+- CheckoutPanel rewritten: 2-step flow (delivery form → PayPal buttons → capture → paid)
+- Fixed cart bug: remove item failed silently (PATCH schema rejected quantity: 0)
+- Fixed cart bug: B2B trade pricing was not applied in buildCartView()
+- Added stock validation to addCartItem()
+- Added HSTS header via .htaccess (Hostinger CDN confirmed serving it)
+- Full CSP defined in next.config.js (Hostinger CDN partially overrides — revisit later)
+
 Current priority
 
 1. ✅ DB tables created in Hostinger phpMyAdmin.
 2. ✅ `DATABASE_URL` set in `.env.local` — connected to Hostinger MySQL.
 3. ✅ E2E tests re-run with DB — 45/74 passed, 1 flaky, all critical domains green.
 4. ✅ Sample data migrated to Hostinger MySQL (1 turbo, 1 vehicle, 1 admin user). Replace with real catalog when ready.
-5. Set `REDIS_URL` in `.env.local` (optional — falls back to in-memory rate limiting).
-6. Set `CF_API_TOKEN` + `CF_ZONE_ID` and run `npm run cloudflare:configure`.
-7. Deploy to production, then run `npm run audit:external` against the live URL.
-8. Configure `STRIPE_SECRET_KEY`, `SENDGRID_API_KEY`, and other integration env vars.
+5. ✅ PayPal credentials configured (`PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `NEXT_PUBLIC_PAYPAL_CLIENT_ID`).
+6. ✅ Deployed to Hostinger — live at `aceturbo.turbo-warehouse.co.uk`.
+7. ✅ External security audit run — HSTS live, all headers except full CSP confirmed.
+8. Set `REDIS_URL` in `.env.local` (optional — falls back to in-memory rate limiting).
+9. Configure `SENDGRID_API_KEY` for order confirmation emails.
+10. Set `PAYPAL_WEBHOOK_ID` after configuring webhook in PayPal Developer Dashboard.
+11. Populate real turbo catalog data and re-run `npm run migrate:existing`.

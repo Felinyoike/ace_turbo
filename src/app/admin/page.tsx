@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 
 const cards = [
+  { href: "/admin/analytics", label: "Analytics & Reporting", desc: "Orders, revenue, popular turbos, and visitor tracking." },
   { href: "/admin/turbos", label: "Turbo Data Entry", desc: "Add, edit and manage turbo product records." },
   { href: "/admin/car-lookup", label: "Car Reg Lookups", desc: "View customer registration number lookups." },
   { href: "/admin/car-lookup/stats", label: "Lookup Stats", desc: "API call counts, cache hits and DB usage." },
