@@ -141,3 +141,17 @@ Current priority
 9. Configure `SENDGRID_API_KEY` for order confirmation emails.
 10. Set `PAYPAL_WEBHOOK_ID` after configuring webhook in PayPal Developer Dashboard.
 11. Populate real turbo catalog data and re-run `npm run migrate:existing`.
+
+Analytics implementation completed (2026-05-29)
+
+- Completed all repo-side tasks from `analytics.md` using raw SQL and `mysql2/promise`; Prisma was not reintroduced.
+- Added `VisitorLog` schema to `scripts/init-db.sql` with `page`, `referrer`, `userAgent`, `hashedIp`, `timestamp`, and an indexed `timestamp` column for reporting queries.
+- Added `src/lib/visitor-analytics.ts` to keep visitor SQL and IP hashing out of the route layer, matching the existing thin API route structure.
+- Added `src/app/api/track/route.ts` with `zod` validation, `rateLimit`, `jsonError`, salted SHA-256 IP hashing, and parameterized `pool.execute` insertion.
+- Added `src/components/layout/VisitorTracker.tsx` and mounted it in `src/app/layout.tsx`; it sends page/referrer/user-agent beacons with `keepalive: true`.
+- Updated `src/app/api/admin/analytics/route.ts` to include `visitorCount` from `SELECT COUNT(*) AS visitorCount FROM VisitorLog` alongside existing order, revenue, turbo, and lookup metrics.
+- Updated `src/components/admin/AnalyticsDashboard.tsx` with the `visitorCount` summary type and a new `Total Site Visits` stat card.
+- TypeScript check passed after dependencies were refreshed: `node node_modules/typescript/bin/tsc --noEmit --incremental false`.
+- Operational requirement: set server-only `VISITOR_IP_SALT` in `.env.local` and production environment variables before enabling `/api/track`.
+- Next production step: run the updated `scripts/init-db.sql` against production MySQL so `VisitorLog` exists before live tracking starts.
+- Performance note: the browser beacon is non-blocking via `keepalive`; avoid MySQL `INSERT DELAYED` for modern MySQL because it is deprecated/removed in newer versions. If tracking volume grows, move writes through Redis, a queue, or background workers while keeping the current parameterized insert path as the fallback.
