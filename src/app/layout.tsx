@@ -6,6 +6,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CookieBanner } from "@/components/layout/CookieBanner";
 import { AnalyticsScripts } from "@/components/layout/AnalyticsScripts";
+import { VisitorTracker } from "@/components/layout/VisitorTracker";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="dark">
       <body className={`${inter.variable} ${jetBrainsMono.variable} antialiased`}>
         <AnalyticsScripts />
+        <VisitorTracker />
         <Header />
         {children}
         <Footer />

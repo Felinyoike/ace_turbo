@@ -11,6 +11,7 @@ type Summary = {
   totalTurbos: number;
   lookupCount: number;
   recentLookups: number;
+  visitorCount: number;
 };
 
 type TopTurbo = {
@@ -61,6 +62,7 @@ export function AnalyticsDashboard() {
         <StatCard label="Orders (30 days)" value={summary.recentOrders} />
         <StatCard label="Revenue (7 days)" value={`£${summary.weekRevenue.toFixed(2)}`} />
         <StatCard label="Revenue (30 days)" value={`£${summary.totalRevenue.toFixed(2)}`} />
+        <StatCard label="Total Site Visits" value={summary.visitorCount} />
         <StatCard label="Total Orders" value={summary.totalOrders} />
         <StatCard label="Total Turbos" value={summary.totalTurbos} />
         <StatCard label="Lookups (7 days)" value={summary.recentLookups} />

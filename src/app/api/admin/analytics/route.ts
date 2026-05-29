@@ -1,16 +1,18 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
-import { getOrders, getTurbos } from "@/lib/data-access";
+import { getAllOrders, getTurbos } from "@/lib/data-access";
 import { readAppData } from "@/lib/persistence";
+import { getVisitorCount } from "@/lib/visitor-analytics";
 
 export async function GET() {
   await requireAdmin();
 
-  const [turbos, orders, appData] = await Promise.all([
+  const [turbos, orders, appData, visitorCount] = await Promise.all([
     getTurbos(),
-    getOrders(),
-    readAppData()
+    getAllOrders(),
+    readAppData(),
+    getVisitorCount()
   ]);
 
   const now = new Date();
@@ -64,7 +66,8 @@ export async function GET() {
       weekRevenue,
       totalTurbos: turbos.length,
       lookupCount,
-      recentLookups
+      recentLookups,
+      visitorCount
     },
     topTurbos,
     ordersByDay,

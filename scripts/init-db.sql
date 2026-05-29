@@ -82,3 +82,13 @@ CREATE TABLE IF NOT EXISTS `ip_blocks` (
   `redirect_url` VARCHAR(255),
   `blocked_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
 );
+
+CREATE TABLE IF NOT EXISTS `VisitorLog` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `page` VARCHAR(2048) NOT NULL,
+  `referrer` VARCHAR(2048),
+  `userAgent` VARCHAR(512),
+  `hashedIp` CHAR(64) NOT NULL,
+  `timestamp` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  INDEX `idx_visitor_log_timestamp` (`timestamp`)
+);
