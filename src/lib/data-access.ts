@@ -17,7 +17,10 @@ type TurboSearch = {
   model?: string;
   engine?: string;
   year?: number;
+  /** Exact BHP match or centre of ±3 range when coming from a reg lookup */
   bhp?: number;
+  /** Whether to apply ±3 BHP tolerance (set automatically by reg lookup) */
+  bhpFuzzy?: boolean;
 };
 
 function useMysql() {
@@ -277,63 +280,89 @@ export async function getTurbos(filters?: TurboSearch) {
     let query = "SELECT * FROM turbos";
     const params: any[] = [];
     const conditions: string[] = [];
-    
+
     if (filters?.partNumber) {
       conditions.push("sku LIKE ?");
       params.push(`%${filters.partNumber}%`);
     }
     if (filters?.make) {
-      conditions.push("make = ?");
+      // Case-insensitive make match
+      conditions.push("make LIKE ?");
       params.push(filters.make);
     }
     if (filters?.model) {
-      conditions.push("model = ?");
-      params.push(filters.model);
+      // Model substring match (legacy uses strpos)
+      conditions.push("model LIKE ?");
+      params.push(`%${filters.model}%`);
     }
     if (filters?.engine) {
-      conditions.push("engine = ?");
-      params.push(filters.engine);
+      conditions.push("engine LIKE ?");
+      params.push(`%${filters.engine}%`);
     }
     if (filters?.year) {
-      conditions.push("year = ?");
-      params.push(filters.year);
+      // Match turbos whose year range covers the vehicle year
+      conditions.push("(start_year IS NULL OR start_year <= ?) AND (end_year IS NULL OR end_year >= ?)");
+      params.push(filters.year, filters.year);
     }
     if (filters?.bhp) {
-      conditions.push("bhp = ?");
-      params.push(filters.bhp);
+      if (filters.bhpFuzzy) {
+        // ±3 BHP tolerance — mirrors legacy PHP: power1 BETWEEN pwr2 AND pwr3
+        conditions.push("bhp BETWEEN ? AND ?");
+        params.push(filters.bhp - 3, filters.bhp + 3);
+      } else {
+        conditions.push("bhp = ?");
+        params.push(filters.bhp);
+      }
     }
-    
+
     if (conditions.length > 0) {
       query += " WHERE " + conditions.join(" AND ");
     }
     query += " ORDER BY created_at DESC";
-    
-    const [rows] = await pool.query(query, params);
-    return (rows as any[]).map(mapTurbo);
+
+    try {
+      const [rows] = await pool.query(query, params);
+      return (rows as any[]).map(mapTurbo);
+    } catch (err) {
+      // DB unreachable from local dev (DB lives on hosting server, not localhost).
+      // Fall through to JSON file data so the page still renders.
+      console.warn("[getTurbos] MySQL unavailable, using local JSON fallback:", (err as Error).message);
+    }
   }
   return (await readAppData()).turbos.filter((turbo) => {
     if (filters?.partNumber && !turbo.sku.includes(filters.partNumber)) return false;
-    if (filters?.make && turbo.make !== filters.make) return false;
-    if (filters?.model && turbo.model !== filters.model) return false;
-    if (filters?.engine && turbo.engine !== filters.engine) return false;
-    if (filters?.year && turbo.year !== filters.year) return false;
-    if (filters?.bhp && turbo.bhp !== filters.bhp) return false;
+    if (filters?.make && turbo.make.toUpperCase() !== filters.make.toUpperCase()) return false;
+    if (filters?.model && !turbo.model.toUpperCase().includes(filters.model.toUpperCase())) return false;
+    if (filters?.engine && !String(turbo.engine || "").includes(filters.engine)) return false;
+    if (filters?.year && turbo.year !== undefined && turbo.year !== filters.year) return false;
+    if (filters?.bhp && turbo.bhp !== undefined) {
+      const tolerance = filters.bhpFuzzy ? 3 : 0;
+      if (turbo.bhp < filters.bhp - tolerance || turbo.bhp > filters.bhp + tolerance) return false;
+    }
     return true;
   });
 }
 
 export async function getTurboById(id: number) {
   if (useMysql()) {
-    const [rows] = await pool.query("SELECT * FROM turbos WHERE id = ? LIMIT 1", [id]);
-    return (rows as any[])[0] ? mapTurbo((rows as any[])[0]) : null;
+    try {
+      const [rows] = await pool.query("SELECT * FROM turbos WHERE id = ? LIMIT 1", [id]);
+      return (rows as any[])[0] ? mapTurbo((rows as any[])[0]) : null;
+    } catch {
+      console.warn("[getTurboById] MySQL unavailable, using local JSON fallback");
+    }
   }
   return (await readAppData()).turbos.find((turbo) => turbo.id === id) || null;
 }
 
 export async function getTurboBySlug(slug: string) {
   if (useMysql()) {
-    const [rows] = await pool.query("SELECT * FROM turbos WHERE seo_slug = ? LIMIT 1", [slug]);
-    return (rows as any[])[0] ? mapTurbo((rows as any[])[0]) : null;
+    try {
+      const [rows] = await pool.query("SELECT * FROM turbos WHERE seo_slug = ? LIMIT 1", [slug]);
+      return (rows as any[])[0] ? mapTurbo((rows as any[])[0]) : null;
+    } catch {
+      console.warn("[getTurboBySlug] MySQL unavailable, using local JSON fallback");
+    }
   }
   return (await readAppData()).turbos.find((turbo) => turbo.seoSlug === slug) || null;
 }
