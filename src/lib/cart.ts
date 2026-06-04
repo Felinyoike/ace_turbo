@@ -1,7 +1,7 @@
 import { getSessionUser, isB2B } from "@/lib/auth";
 import { getOrCreateSessionId } from "@/lib/session";
 import { readAppData, updateAppData, type StoredCart } from "@/lib/persistence";
-import { getTurboById } from "@/lib/data-access";
+import { getTurboById, isLegacyTurboId } from "@/lib/data-access";
 
 function createCart(id: string, userId?: number): StoredCart {
   return {
@@ -30,7 +30,8 @@ export async function getCurrentCart() {
 export async function addCartItem(turboId: number, quantity: number) {
   const turbo = await getTurboById(turboId);
   if (!turbo) throw new Error("Turbo not found");
-  if (turbo.stock < quantity) throw new Error(`Only ${turbo.stock} units in stock`);
+  const enforceStock = !isLegacyTurboId(turboId);
+  if (enforceStock && turbo.stock < quantity) throw new Error(`Only ${turbo.stock} units in stock`);
   const user = await getSessionUser();
   return updateAppData((data) => {
     const sessionId = getOrCreateSessionId();
@@ -41,7 +42,7 @@ export async function addCartItem(turboId: number, quantity: number) {
     }
     const item = cart.items.find((entry) => entry.turboId === turboId);
     const newQty = item ? item.quantity + quantity : quantity;
-    if (newQty > turbo!.stock) throw new Error(`Only ${turbo!.stock} units in stock`);
+    if (enforceStock && newQty > turbo!.stock) throw new Error(`Only ${turbo!.stock} units in stock`);
     if (item) item.quantity = newQty;
     else cart.items.push({ turboId, quantity });
     cart.updatedAt = new Date().toISOString();

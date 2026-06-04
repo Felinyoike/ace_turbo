@@ -9,6 +9,7 @@
     "lint": "next lint",
     "test": "jest",
     "test:e2e": "playwright test",
+    "db:inspect": "node scripts/inspect-db.mjs",
     "migrate:existing": "node scripts/migrate-existing-data.mjs",
     "audit:external": "node scripts/run-security-audit.mjs",
     "cloudflare:configure": "node scripts/configure-cloudflare.mjs"

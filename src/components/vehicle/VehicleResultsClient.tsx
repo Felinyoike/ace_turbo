@@ -2,10 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { getSessionUser, isB2B } from "@/lib/auth";
-import { getTurbos } from "@/lib/data-access";
 import { TurboCard } from "@/components/turbos/TurboCard";
 import type { StoredTurbo } from "@/lib/persistence";
 
@@ -23,6 +20,8 @@ type VehicleData = {
   numberOfDoors?: number;
   bodyShape?: string;
   co2?: number;
+  imageUrl?: string;
+  imageUrls?: string[];
 };
 
 export function VehicleResultsClient() {
@@ -33,6 +32,7 @@ export function VehicleResultsClient() {
   const [loading, setLoading] = useState(true);
   const [isTrade, setIsTrade] = useState(false);
   const [error, setError] = useState("");
+  const [carImageUrl, setCarImageUrl] = useState("/images/car-placeholder.svg");
 
   const registration = searchParams.get("reg");
 
@@ -64,6 +64,7 @@ export function VehicleResultsClient() {
         const vehicleData = await vehicleResponse.json();
         const v: VehicleData = vehicleData.vehicle;
         setVehicle(v);
+        setCarImageUrl(getCarImageUrl(v));
 
         // Fetch matching turbos
         const turboResults = await fetch(
@@ -71,7 +72,8 @@ export function VehicleResultsClient() {
             ...(v.make && { make: v.make }),
             ...(v.model && { model: v.model }),
             ...(v.year && { year: String(v.year) }),
-            ...(v.engineCapacity && { engine: String(v.engineCapacity) }),
+            ...(v.engineCapacity && { engineCapacity: String(v.engineCapacity) }),
+            ...(v.engineCode && { engineCode: v.engineCode }),
             ...(v.bhp && { bhp: String(v.bhp) })
           })}`
         ).then(res => res.json());
@@ -79,8 +81,9 @@ export function VehicleResultsClient() {
         setTurbos(turboResults.turbos || []);
 
         // Check user role
-        const user = await fetch("/api/account/session").then(res => res.json()).catch(() => null);
-        setIsTrade(user?.role === "b2b_customer" || user?.role === "admin");
+        const session = await fetch("/api/auth/me").then(res => res.json()).catch(() => null);
+        const role = session?.user?.role;
+        setIsTrade(role === "b2b" || role === "admin");
 
       } catch (err) {
         console.error("Error loading vehicle data:", err);
@@ -128,9 +131,6 @@ export function VehicleResultsClient() {
     .filter(Boolean)
     .join(" ");
 
-  // Generate car image URL (using placeholder service or your own images)
-  const carImageUrl = getCarImageUrl(vehicle.make, vehicle.model);
-
   return (
     <>
       {/* Vehicle Information Section */}
@@ -164,18 +164,11 @@ export function VehicleResultsClient() {
             {/* Vehicle Image */}
             <div className="relative aspect-[16/9] bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 overflow-hidden group">
               <div className="absolute inset-0 flex items-center justify-center">
-                <Image
+                <img
                   src={carImageUrl}
                   alt={`${vehicleLabel} - Vehicle Image`}
-                  fill
-                  unoptimized
-                  className="object-contain object-center p-4 group-hover:scale-105 transition-transform duration-500"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  onError={(e) => {
-                    // Fallback to generic car icon if image fails
-                    const target = e.target as HTMLImageElement;
-                    target.src = "/images/car-placeholder.svg";
-                  }}
+                  className="h-full w-full object-contain object-center p-6 transition-transform duration-500 group-hover:scale-105"
+                  onError={() => setCarImageUrl("/images/car-placeholder.svg")}
                 />
               </div>
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#0f172a]/90 to-transparent p-4">
@@ -329,7 +322,7 @@ export function VehicleResultsClient() {
         </div>
       </section>
 
-      {/* Matching Turbos Section */}
+      {/* Matching Parts Section */}
       <section className="mx-auto max-w-[1080px] px-4 py-12">
         <div className="mb-8">
           <div className="inline-flex items-center gap-3 border border-[#0868a8]/25 bg-[#eff6ff] px-4 py-2">
@@ -385,8 +378,8 @@ export function VehicleResultsClient() {
                     ✓ Parts Available
                   </h3>
                   <p className="text-[13px] text-green-700 leading-relaxed mb-3">
-                    We have <strong className="font-bold">{turbos.length} matching turbocharger{turbos.length === 1 ? "" : "s"}</strong> in stock for your <strong className="font-bold">{vehicleLabel}</strong>. 
-                    Browse the available options below and add to your cart to proceed to checkout.
+                    We found <strong className="font-bold">{turbos.length} matching part{turbos.length === 1 ? "" : "s"}</strong> for your <strong className="font-bold">{vehicleLabel}</strong>.
+                    Browse the available options below and add the correct item to your cart to proceed to checkout.
                   </p>
                   <div className="flex flex-wrap gap-3 mt-4">
                     <Link
@@ -433,7 +426,7 @@ export function VehicleResultsClient() {
                     No Parts Found in Database
                   </h3>
                   <p className="text-[13px] text-amber-700 leading-relaxed mb-3">
-                    We couldn't find matching turbochargers in our database for your <strong className="font-bold">{vehicleLabel}</strong>. 
+                    We couldn't find matching parts in our database for your <strong className="font-bold">{vehicleLabel}</strong>. 
                     However, we may still be able to help you source the correct part.
                   </p>
                   <div className="flex flex-wrap gap-3 mt-4">
@@ -463,7 +456,7 @@ export function VehicleResultsClient() {
           <p className="font-tech text-[10px] uppercase tracking-[0.24em] text-[#64748b]">
             {turbos.length === 0
               ? "0 results in catalog"
-              : `${turbos.length} matching turbo${turbos.length === 1 ? "" : "s"}`}
+              : `${turbos.length} matching part${turbos.length === 1 ? "" : "s"}`}
           </p>
           {turbos.length > 0 && (
             <div className="flex items-center gap-2">
@@ -478,7 +471,7 @@ export function VehicleResultsClient() {
           <>
             <section className="grid gap-4 md:grid-cols-2" aria-label="Turbo results">
               {turbos.map((turbo) => (
-                <TurboCard key={turbo.sku} isTrade={isTrade} turbo={turbo} />
+                <TurboCard key={turbo.id} isTrade={isTrade} turbo={turbo} />
               ))}
             </section>
 
@@ -490,7 +483,7 @@ export function VehicleResultsClient() {
                     Ready to Order?
                   </h3>
                   <p className="mb-6 text-[13px] leading-relaxed text-blue-100">
-                    Add your selected turbocharger to the cart and proceed to checkout. 
+                    Add your selected part to the cart and proceed to checkout. 
                     We offer secure payment options and fast UK-wide delivery.
                   </p>
                   <div className="flex flex-wrap items-center justify-center gap-4">
@@ -546,7 +539,7 @@ export function VehicleResultsClient() {
               Alternative Options Available
             </p>
             <p className="text-[14px] text-amber-700 leading-relaxed max-w-xl mx-auto mb-6">
-              While we don't have this specific vehicle in our database, our expert team can help source the correct turbocharger for your <strong>{vehicleLabel}</strong>.
+              While we don't have this specific vehicle in our database, our expert team can help source the correct part for your <strong>{vehicleLabel}</strong>.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Link
@@ -573,14 +566,13 @@ export function VehicleResultsClient() {
 }
 
 // Helper function to generate car image URL
-function getCarImageUrl(make?: string, model?: string): string {
-  // You can implement different strategies here:
-  // 1. Use your own uploaded car images
-  // 2. Use a car image API service
-  // 3. Use placeholder images by make
+function getCarImageUrl(vehicle: VehicleData): string {
+  const apiImage = vehicle.imageUrl || vehicle.imageUrls?.[0];
+  if (apiImage) return apiImage;
 
-  const makeLower = make?.toLowerCase().replace(/[^a-z0-9]/g, "") || "generic";
-  
-  // Try to use local images first (you can add actual car images to /public/images/cars/)
+  const makeLower = vehicle.make?.toLowerCase().replace(/[^a-z0-9]/g, "") || "generic";
+
+  if (!vehicle.make || makeLower === "generic") return "/images/car-placeholder.svg";
+
   return `/images/cars/${makeLower}.png`;
 }

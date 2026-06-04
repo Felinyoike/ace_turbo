@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 
@@ -39,15 +40,23 @@ export function TurboFilter({ defaults = {} }: { defaults?: Record<string, strin
             Filter Stock
           </span>
         </div>
-        {hasActive && (
-          <button
-            type="button"
-            onClick={handleClear}
-            className="font-tech text-[9px] uppercase tracking-[0.2em] text-[#64748b] hover:text-red-500 transition-colors"
+        <div className="flex items-center gap-3">
+          <Link
+            href="/turbos/brands"
+            className="font-tech text-[9px] uppercase tracking-[0.2em] text-[#0868a8] hover:underline"
           >
-            Clear filters ×
-          </button>
-        )}
+            Filter by brand guide →
+          </Link>
+          {hasActive && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="font-tech text-[9px] uppercase tracking-[0.2em] text-[#64748b] hover:text-red-500 transition-colors"
+            >
+              Clear filters ×
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Filter fields grid */}

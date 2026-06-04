@@ -19,6 +19,8 @@ export type UkVehicleData = {
   bodyShape?: string;
   co2?: number;
   registrationNumber?: string;
+  imageUrl?: string;
+  imageUrls?: string[];
 };
 
 interface UkvdResponse {
@@ -69,6 +71,36 @@ function toNum(v: unknown): number | undefined {
   return isNaN(n) || n === 0 ? undefined : n;
 }
 
+function looksLikeImageUrl(value: string) {
+  return /^https?:\/\//i.test(value) && /\.(?:avif|gif|jpe?g|png|svg|webp)(?:[?#].*)?$/i.test(value);
+}
+
+function collectImageUrls(value: unknown, urls = new Set<string>()): Set<string> {
+  if (!value) return urls;
+
+  if (typeof value === "string") {
+    if (looksLikeImageUrl(value)) urls.add(value);
+    return urls;
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) collectImageUrls(item, urls);
+    return urls;
+  }
+
+  if (typeof value === "object") {
+    for (const [key, nestedValue] of Object.entries(value as Record<string, unknown>)) {
+      const keySuggestsImage = /image|photo|picture|thumbnail|media/i.test(key);
+      if (typeof nestedValue === "string" && keySuggestsImage && /^https?:\/\//i.test(nestedValue)) {
+        urls.add(nestedValue);
+      }
+      collectImageUrls(nestedValue, urls);
+    }
+  }
+
+  return urls;
+}
+
 export async function fetchVehicleFromUkVehicleData(vrm: string): Promise<UkVehicleData> {
   const apiKey = process.env.UKVD_API_KEY;
 
@@ -109,6 +141,7 @@ export async function fetchVehicleFromUkVehicleData(vrm: string): Promise<UkVehi
   const items = json.Response.DataItems;
   const vr = items?.VehicleRegistration;
   const tech = items?.TechnicalDetails;
+  const imageUrls = Array.from(collectImageUrls(json));
 
   return {
     registrationNumber: vr?.Vrm || vrm,
@@ -123,6 +156,8 @@ export async function fetchVehicleFromUkVehicleData(vrm: string): Promise<UkVehi
     transmissionType: vr?.Transmission || undefined,
     numberOfDoors: toNum(tech?.Dimensions?.NumberOfDoors),
     bodyShape: tech?.Dimensions?.BodyShape || undefined,
-    co2: toNum(tech?.Performance?.Co2)
+    co2: toNum(tech?.Performance?.Co2),
+    imageUrl: imageUrls[0],
+    imageUrls: imageUrls.length > 0 ? imageUrls : undefined
   };
 }

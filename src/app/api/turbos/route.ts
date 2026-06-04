@@ -12,6 +12,8 @@ export async function GET(request: Request) {
       model: searchParams.get("model") || undefined,
       year: searchParams.get("year") ? Number(searchParams.get("year")) : undefined,
       engine: searchParams.get("engine") || undefined,
+      engineCapacity: searchParams.get("engineCapacity") ? Number(searchParams.get("engineCapacity")) : undefined,
+      engineCode: searchParams.get("engineCode") || undefined,
       bhp: searchParams.get("bhp") ? Number(searchParams.get("bhp")) : undefined,
       bhpFuzzy: searchParams.has("bhp") // Apply ±3 tolerance when BHP is supplied
     };

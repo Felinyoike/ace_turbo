@@ -12,7 +12,7 @@ export function Header() {
 
         <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[15px] font-medium text-[#334155] lg:flex-1 lg:justify-center">
           <Link href="/" className="border-b-2 border-[#0868a8] pb-1 text-[#0868a8]">Home</Link>
-          <Link href="/turbos/brands" className="transition-colors hover:text-[#0868a8]">Turbo Finder</Link>
+          <Link href="/turbos" className="transition-colors hover:text-[#0868a8]">Turbo Finder</Link>
           <Link href="/services" className="transition-colors hover:text-[#0868a8]">Services</Link>
           <Link href="/franchise" className="transition-colors hover:text-[#0868a8]">Franchise Opp.</Link>
           <Link href="/legal/business-policy" className="transition-colors hover:text-[#0868a8]">Legal Stuff</Link>

@@ -69,13 +69,13 @@ export default async function B2BPage() {
                 </p>
               </Link>
               <Link
-                href="/turbos/brands"
+                href="/turbos"
                 className="group border border-slate-200 bg-white p-6 transition hover:border-[#0868a8]/40 hover:shadow-sm"
               >
                 <p className="text-[11px] uppercase tracking-[0.2em] text-[#0868a8]">Finder</p>
                 <h3 className="mt-2 text-[17px] font-bold text-[#0f172a] group-hover:text-[#0868a8]">Turbo Finder</h3>
                 <p className="mt-2 text-[14px] leading-6 text-[#475569]">
-                  Identify part numbers by manufacturer brand and data plate reference.
+                  Search live turbo stock by vehicle, engine, BHP, or part number.
                 </p>
               </Link>
               <Link

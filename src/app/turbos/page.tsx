@@ -17,6 +17,9 @@ export default async function TurbosPage({ searchParams }: { searchParams: Recor
   const partNumber = typeof searchParams.partNumber === "string" ? searchParams.partNumber : "";
   const user = await getSessionUser();
   const bhpValue = typeof searchParams.bhp === "string" && searchParams.bhp ? Number(searchParams.bhp) : undefined;
+  const pageSize = 48;
+  const pageParam = typeof searchParams.page === "string" && searchParams.page ? Number(searchParams.page) : 1;
+  const page = Number.isFinite(pageParam) ? Math.max(pageParam, 1) : 1;
 
   const make  = typeof searchParams.make   === "string" ? searchParams.make   : undefined;
   const model = typeof searchParams.model  === "string" ? searchParams.model  : undefined;
@@ -31,12 +34,28 @@ export default async function TurbosPage({ searchParams }: { searchParams: Recor
     year,
     bhp: bhpValue,
     // Apply ±3 BHP tolerance when BHP is supplied (mirrors legacy regnum2.php power range filter)
-    bhpFuzzy: bhpValue !== undefined
+    bhpFuzzy: bhpValue !== undefined,
+    limit: pageSize,
+    offset: (page - 1) * pageSize
   });
 
   // Determine if this is a reg-lookup result (has make+model or bhp set)
   const isRegLookup = Boolean((make || model) && bhpValue);
   const vehicleLabel = [make, model, year ? String(year) : ""].filter(Boolean).join(" ");
+  const hasNextPage = turbos.length === pageSize;
+  const hasPreviousPage = page > 1;
+  const pageHref = (nextPage: number) => {
+    const params = new URLSearchParams();
+    if (partNumber) params.set("partNumber", partNumber);
+    if (make) params.set("make", make);
+    if (model) params.set("model", model);
+    if (year) params.set("year", String(year));
+    if (engine) params.set("engine", engine);
+    if (bhpValue) params.set("bhp", String(bhpValue));
+    if (nextPage > 1) params.set("page", String(nextPage));
+    const query = params.toString();
+    return query ? `/turbos?${query}` : "/turbos";
+  };
 
   return (
     <main className="min-h-screen bg-white">
@@ -109,7 +128,7 @@ export default async function TurbosPage({ searchParams }: { searchParams: Recor
           <p className="font-tech text-[10px] uppercase tracking-[0.24em] text-[#64748b]">
             {turbos.length === 0
               ? "No results found"
-              : `${turbos.length} result${turbos.length === 1 ? "" : "s"} found`}
+              : `Showing ${turbos.length} turbo${turbos.length === 1 ? "" : "s"} from the database · Page ${page}`}
           </p>
           {turbos.length === 0 && (make || model || partNumber) && (
             <a
@@ -122,11 +141,39 @@ export default async function TurbosPage({ searchParams }: { searchParams: Recor
         </div>
 
         {turbos.length > 0 ? (
-          <section className="grid gap-4 md:grid-cols-2" aria-label="Turbo results">
-            {turbos.map((turbo: StoredTurbo) => (
-              <TurboCard isTrade={isB2B(user)} key={turbo.sku} turbo={turbo} />
-            ))}
-          </section>
+          <>
+            <section className="grid gap-4 md:grid-cols-2" aria-label="Turbo results">
+              {turbos.map((turbo: StoredTurbo) => (
+                <TurboCard isTrade={isB2B(user)} key={turbo.id} turbo={turbo} />
+              ))}
+            </section>
+
+            <nav className="mt-8 flex flex-wrap items-center justify-between gap-3" aria-label="Turbo catalog pagination">
+              {hasPreviousPage ? (
+                <a
+                  className="border border-slate-300 bg-white px-5 py-3 font-tech text-[10px] uppercase tracking-[0.2em] text-[#334155] transition hover:border-[#0868a8] hover:text-[#0868a8]"
+                  href={pageHref(page - 1)}
+                >
+                  ← Previous
+                </a>
+              ) : (
+                <span />
+              )}
+              <span className="font-tech text-[10px] uppercase tracking-[0.2em] text-[#64748b]">
+                Page {page}
+              </span>
+              {hasNextPage ? (
+                <a
+                  className="border border-[#0868a8] bg-[#0868a8] px-5 py-3 font-tech text-[10px] uppercase tracking-[0.2em] text-white transition hover:border-[#054b7f] hover:bg-[#054b7f]"
+                  href={pageHref(page + 1)}
+                >
+                  Next →
+                </a>
+              ) : (
+                <span />
+              )}
+            </nav>
+          </>
         ) : (
           /* Empty state */
           <div className="border border-dashed border-slate-200 bg-slate-50 p-12 text-center">

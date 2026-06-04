@@ -16,16 +16,153 @@ type TurboSearch = {
   make?: string;
   model?: string;
   engine?: string;
+  engineCapacity?: number;
+  engineCode?: string;
   year?: number;
   /** Exact BHP match or centre of ±3 range when coming from a reg lookup */
   bhp?: number;
   /** Whether to apply ±3 BHP tolerance (set automatically by reg lookup) */
   bhpFuzzy?: boolean;
+  /** Maximum rows to return when browsing large legacy catalog tables */
+  limit?: number;
+  /** Number of rows to skip when browsing large legacy catalog tables */
+  offset?: number;
 };
+
+const LEGACY_TURBO_ID_OFFSET = 1_000_000;
 
 function useMysql() {
   const url = process.env.DATABASE_URL;
   return Boolean(url && !url.includes("user:pass@host"));
+}
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
+function parseJsonArray(value: unknown): string[] {
+  if (Array.isArray(value)) return value;
+  if (typeof value !== "string" || !value.trim()) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function cleanLegacyText(value: unknown) {
+  return String(value || "").replace(/\s+/g, " ").trim();
+}
+
+function firstLegacyPartNumber(...values: unknown[]) {
+  for (const value of values) {
+    const firstPart = cleanLegacyText(value).split(/\s+/).find(Boolean);
+    if (firstPart) return firstPart;
+  }
+  return "";
+}
+
+function legacyPrice(row: any) {
+  const reconPrice = Number(row.recon_price || 0);
+  if (reconPrice > 0) return reconPrice;
+
+  const repairPrice = Number(row.repair_price || 0);
+  if (repairPrice > 0) return repairPrice;
+
+  const relatedReconPrice = Number(row.related_recon_price || 0);
+  return relatedReconPrice > 0 ? relatedReconPrice : 0;
+}
+
+function legacyTurboId(id: number) {
+  return id + LEGACY_TURBO_ID_OFFSET;
+}
+
+function legacyProductId(id: number) {
+  return id - LEGACY_TURBO_ID_OFFSET;
+}
+
+export function isLegacyTurboId(id: number) {
+  return id >= LEGACY_TURBO_ID_OFFSET;
+}
+
+function hasVehicleFitmentFilters(filters?: TurboSearch) {
+  return Boolean(filters?.make || filters?.model || filters?.year || filters?.engine || filters?.engineCapacity || filters?.engineCode || filters?.bhp);
+}
+
+function hasActiveTurboFilters(filters?: TurboSearch) {
+  return Boolean(filters?.partNumber || hasVehicleFitmentFilters(filters));
+}
+
+function relaxedVehicleFitmentFilters(filters?: TurboSearch): TurboSearch[] {
+  if (!filters || !hasVehicleFitmentFilters(filters)) return [];
+
+  return [
+    { ...filters, bhp: undefined, bhpFuzzy: undefined },
+    {
+      ...filters,
+      engine: undefined,
+      engineCapacity: undefined,
+      engineCode: undefined,
+      bhp: undefined,
+      bhpFuzzy: undefined
+    },
+    {
+      ...filters,
+      model: undefined,
+      engine: undefined,
+      engineCapacity: undefined,
+      engineCode: undefined,
+      bhp: undefined,
+      bhpFuzzy: undefined
+    }
+  ];
+}
+
+function engineCapacitySearchTerms(engineCapacity?: number) {
+  if (!engineCapacity) return [];
+
+  const litres = engineCapacity / 1000;
+  const roundedLitres = (Math.round(litres * 10) / 10).toFixed(1);
+
+  return [
+    String(engineCapacity),
+    `${engineCapacity}cc`,
+    `${engineCapacity} cc`,
+    roundedLitres,
+    `${roundedLitres}L`,
+    `${roundedLitres} L`
+  ];
+}
+
+function engineCapacityLitres(engineCapacity?: number) {
+  if (!engineCapacity) return undefined;
+  return Math.round((engineCapacity / 1000) * 10) / 10;
+}
+
+function turboMatchesModel(turboModel: string, searchModel: string) {
+  const catalogModel = turboModel.trim().toUpperCase();
+  const vehicleModel = searchModel.trim().toUpperCase();
+
+  return catalogModel.includes(vehicleModel) || vehicleModel.includes(catalogModel);
+}
+
+function turboMatchesEngine(turboEngine: string, filters: TurboSearch) {
+  const catalogEngine = String(turboEngine || "").toUpperCase();
+  const terms = [
+    filters.engine,
+    filters.engineCode,
+    ...engineCapacitySearchTerms(filters.engineCapacity)
+  ]
+    .filter(Boolean)
+    .map((term) => String(term).toUpperCase());
+
+  return terms.length === 0 || terms.some((term) => catalogEngine.includes(term));
 }
 
 function mapTurbo(row: any): StoredTurbo {
@@ -43,9 +180,52 @@ function mapTurbo(row: any): StoredTurbo {
     stock: row.stock,
     seoSlug: row.seo_slug ?? row.seoSlug,
     description: row.description || "",
-    images: typeof row.images === 'string' ? JSON.parse(row.images) : (Array.isArray(row.images) ? row.images : []),
+    images: parseJsonArray(row.images),
     createdAt: new Date(row.created_at ?? row.createdAt).toISOString(),
     updatedAt: new Date(row.updated_at ?? row.updatedAt).toISOString()
+  };
+}
+
+function mapLegacyTurbo(row: any): StoredTurbo {
+  const id = legacyTurboId(Number(row.turbo_id));
+  const make = row.make_name || row.turbo_make || "Vehicle";
+  const model = row.model_name || row.turbo_model || "Application";
+  const turboModel = [row.turbo_make, row.turbo_model].filter(Boolean).join(" ").trim();
+  const primaryPart = firstLegacyPartNumber(row.turbo_oe_no, row.vehicle_oe_no, row.oem_chra_no, row.turbo_data) || `LEGACY-${row.turbo_id}`;
+  const sku = `${primaryPart}-${row.turbo_id}`;
+  const engine = [row.engine ? `${Number(row.engine).toFixed(1).replace(/\.0$/, "")}L` : undefined, row.engine_code]
+    .filter(Boolean)
+    .join(" ");
+  const yearText = row.start_year && row.end_year ? `${row.start_year}-${row.end_year}` : row.start_year || row.end_year || "year range";
+  const vehicleName = [make, model, engine].filter(Boolean).join(" ");
+  const descriptionParts = [
+    `${vehicleName} turbocharger`,
+    turboModel || undefined,
+    yearText ? `(${yearText})` : undefined,
+    row.vehicle_oe_no ? `Vehicle OE: ${cleanLegacyText(row.vehicle_oe_no)}` : undefined,
+    row.turbo_oe_no ? `Turbo OE: ${cleanLegacyText(row.turbo_oe_no)}` : undefined,
+    row.oem_chra_no ? `CHRA: ${cleanLegacyText(row.oem_chra_no)}` : undefined
+  ].filter(Boolean);
+  const price = legacyPrice(row);
+  const now = new Date().toISOString();
+
+  return {
+    id,
+    sku: String(sku),
+    make: String(make),
+    model: String(model),
+    year: row.start_year || undefined,
+    engine: engine || "Engine dependent",
+    bhp: row.power1 || undefined,
+    type: turboModel || "Turbocharger",
+    price,
+    tradePrice: undefined,
+    stock: Math.max(Number(row.in_stock || 0), 1),
+    seoSlug: `legacy-${row.turbo_id}-${slugify(`${make} ${model} ${primaryPart}`)}`,
+    description: descriptionParts.join(" "),
+    images: row.turbo_image ? [`/images/${row.turbo_image}`] : ["/images/ace-turbo-preview.svg"],
+    createdAt: now,
+    updatedAt: now
   };
 }
 
@@ -277,6 +457,29 @@ export async function updateUserRoleRecord(userId: number, role: StoredUser["rol
 
 export async function getTurbos(filters?: TurboSearch) {
   if (useMysql()) {
+    if (!hasActiveTurboFilters(filters)) {
+      try {
+        const legacy = await getLegacyTurbos(filters);
+        if (legacy.length > 0) return legacy;
+      } catch (err) {
+        console.warn("[getTurbos] Legacy catalog browse unavailable, trying normalized turbos:", (err as Error).message);
+      }
+    }
+
+    if (hasVehicleFitmentFilters(filters)) {
+      try {
+        const legacy = await getLegacyTurbos(filters);
+        if (legacy.length > 0) return legacy;
+
+        for (const relaxedFilters of relaxedVehicleFitmentFilters(filters)) {
+          const relaxedLegacy = await getLegacyTurbos(relaxedFilters);
+          if (relaxedLegacy.length > 0) return relaxedLegacy;
+        }
+      } catch (err) {
+        console.warn("[getTurbos] Legacy product lookup unavailable, trying normalized turbos:", (err as Error).message);
+      }
+    }
+
     let query = "SELECT * FROM turbos";
     const params: any[] = [];
     const conditions: string[] = [];
@@ -291,18 +494,23 @@ export async function getTurbos(filters?: TurboSearch) {
       params.push(filters.make);
     }
     if (filters?.model) {
-      // Model substring match (legacy uses strpos)
-      conditions.push("model LIKE ?");
-      params.push(`%${filters.model}%`);
+      // Match both full decoded VRM models and shorter catalog models.
+      conditions.push("(model LIKE ? OR ? LIKE CONCAT('%', model, '%'))");
+      params.push(`%${filters.model}%`, filters.model);
     }
-    if (filters?.engine) {
-      conditions.push("engine LIKE ?");
-      params.push(`%${filters.engine}%`);
+    const engineTerms = [
+      filters?.engine,
+      filters?.engineCode,
+      ...engineCapacitySearchTerms(filters?.engineCapacity)
+    ].filter(Boolean);
+    if (engineTerms.length > 0) {
+      conditions.push(`(${engineTerms.map(() => "engine LIKE ?").join(" OR ")})`);
+      params.push(...engineTerms.map((term) => `%${term}%`));
     }
     if (filters?.year) {
-      // Match turbos whose year range covers the vehicle year
-      conditions.push("(start_year IS NULL OR start_year <= ?) AND (end_year IS NULL OR end_year >= ?)");
-      params.push(filters.year, filters.year);
+      // Prefer legacy-style production ranges when present; keep single-year rows working.
+      conditions.push("((start_year IS NULL OR start_year <= ?) AND (end_year IS NULL OR end_year >= ?) OR (year IS NULL OR year = ?))");
+      params.push(filters.year, filters.year, filters.year);
     }
     if (filters?.bhp) {
       if (filters.bhpFuzzy) {
@@ -322,18 +530,24 @@ export async function getTurbos(filters?: TurboSearch) {
 
     try {
       const [rows] = await pool.query(query, params);
-      return (rows as any[]).map(mapTurbo);
+      const turbos = (rows as any[]).map(mapTurbo);
+      if (turbos.length > 0 || !filters || Object.keys(filters).length === 0) return turbos;
     } catch (err) {
-      // DB unreachable from local dev (DB lives on hosting server, not localhost).
-      // Fall through to JSON file data so the page still renders.
-      console.warn("[getTurbos] MySQL unavailable, using local JSON fallback:", (err as Error).message);
+      console.warn("[getTurbos] Normalized turbos unavailable:", (err as Error).message);
+    }
+
+    try {
+      const legacy = await getLegacyTurbos(filters);
+      if (legacy.length > 0) return legacy;
+    } catch (err) {
+      console.warn("[getTurbos] Legacy product lookup unavailable, using local JSON fallback:", (err as Error).message);
     }
   }
   return (await readAppData()).turbos.filter((turbo) => {
     if (filters?.partNumber && !turbo.sku.includes(filters.partNumber)) return false;
     if (filters?.make && turbo.make.toUpperCase() !== filters.make.toUpperCase()) return false;
-    if (filters?.model && !turbo.model.toUpperCase().includes(filters.model.toUpperCase())) return false;
-    if (filters?.engine && !String(turbo.engine || "").includes(filters.engine)) return false;
+    if (filters?.model && !turboMatchesModel(turbo.model, filters.model)) return false;
+    if (!turboMatchesEngine(turbo.engine, filters || {})) return false;
     if (filters?.year && turbo.year !== undefined && turbo.year !== filters.year) return false;
     if (filters?.bhp && turbo.bhp !== undefined) {
       const tolerance = filters.bhpFuzzy ? 3 : 0;
@@ -343,8 +557,96 @@ export async function getTurbos(filters?: TurboSearch) {
   });
 }
 
+async function getLegacyTurbos(filters?: TurboSearch) {
+  let query = `
+    SELECT
+      p.turbo_id,
+      p.start_year,
+      p.end_year,
+      p.engine,
+      p.power1,
+      p.engine_code,
+      p.vehicle_oe_no,
+      p.turbo_oe_no,
+      p.oem_chra_no,
+      p.recon_price,
+      p.repair_price,
+      related_price.recon_price AS related_recon_price,
+      p.in_stock,
+      mk.make_name,
+      mm.model_name,
+      tm.turbo_make,
+      tm.turbo_model,
+      tm.turbo_image
+    FROM tbl_product p
+    LEFT JOIN manage_make mk ON mk.make_id = p.make_id
+    LEFT JOIN manage_model mm ON mm.model_id = p.model_id
+    LEFT JOIN tbl_turbo_model tm ON tm.turbo_model_id = p.turbo_model_id
+    LEFT JOIN (
+      SELECT make_id, model_id, engine, MIN(NULLIF(recon_price, 0)) AS recon_price
+      FROM tbl_product
+      WHERE status = 1 AND recon_price > 0
+      GROUP BY make_id, model_id, engine
+    ) related_price
+      ON related_price.make_id = p.make_id
+      AND related_price.model_id = p.model_id
+      AND related_price.engine = p.engine
+  `;
+  const params: any[] = [];
+  const conditions = ["p.status = 1"];
+
+  if (filters?.partNumber) {
+    conditions.push("(p.turbo_oe_no LIKE ? OR p.vehicle_oe_no LIKE ? OR p.oem_chra_no LIKE ? OR tm.turbo_oe_no LIKE ?)");
+    const part = `%${filters.partNumber}%`;
+    params.push(part, part, part, part);
+  }
+  if (filters?.make) {
+    conditions.push("mk.make_name LIKE ?");
+    params.push(`%${filters.make}%`);
+  }
+  if (filters?.model) {
+    conditions.push("(mm.model_name LIKE ? OR ? LIKE CONCAT('%', mm.model_name, '%'))");
+    params.push(`%${filters.model}%`, filters.model);
+  }
+  if (filters?.year) {
+    conditions.push("(p.start_year IS NULL OR p.start_year <= ?) AND (p.end_year IS NULL OR p.end_year >= ?)");
+    params.push(filters.year, filters.year);
+  }
+  if (filters?.bhp) {
+    if (filters.bhpFuzzy) {
+      conditions.push("p.power1 BETWEEN ? AND ?");
+      params.push(filters.bhp - 3, filters.bhp + 3);
+    } else {
+      conditions.push("p.power1 = ?");
+      params.push(filters.bhp);
+    }
+  }
+
+  const litres = engineCapacityLitres(filters?.engineCapacity);
+  if (litres && !filters?.bhp) {
+    conditions.push("p.engine = ?");
+    params.push(litres);
+  }
+  const limit = Math.min(Math.max(Number(filters?.limit || 100), 1), 200);
+  const offset = Math.max(Number(filters?.offset || 0), 0);
+
+  query += ` WHERE ${conditions.join(" AND ")} ORDER BY p.in_stock DESC, p.turbo_id ASC LIMIT ? OFFSET ?`;
+  params.push(limit, offset);
+
+  const [rows] = await pool.query(query, params);
+  return (rows as any[]).map(mapLegacyTurbo);
+}
+
 export async function getTurboById(id: number) {
   if (useMysql()) {
+    if (isLegacyTurboId(id)) {
+      try {
+        return await getLegacyTurboByProductId(legacyProductId(id));
+      } catch {
+        console.warn("[getTurboById] Legacy product lookup unavailable");
+      }
+    }
+
     try {
       const [rows] = await pool.query("SELECT * FROM turbos WHERE id = ? LIMIT 1", [id]);
       return (rows as any[])[0] ? mapTurbo((rows as any[])[0]) : null;
@@ -357,6 +659,15 @@ export async function getTurboById(id: number) {
 
 export async function getTurboBySlug(slug: string) {
   if (useMysql()) {
+    const legacyMatch = slug.match(/^legacy-(\d+)-/);
+    if (legacyMatch) {
+      try {
+        return await getLegacyTurboByProductId(Number(legacyMatch[1]));
+      } catch {
+        console.warn("[getTurboBySlug] Legacy product lookup unavailable");
+      }
+    }
+
     try {
       const [rows] = await pool.query("SELECT * FROM turbos WHERE seo_slug = ? LIMIT 1", [slug]);
       return (rows as any[])[0] ? mapTurbo((rows as any[])[0]) : null;
@@ -365,6 +676,49 @@ export async function getTurboBySlug(slug: string) {
     }
   }
   return (await readAppData()).turbos.find((turbo) => turbo.seoSlug === slug) || null;
+}
+
+async function getLegacyTurboByProductId(productId: number) {
+  const [rows] = await pool.query(
+    `
+      SELECT
+        p.turbo_id,
+        p.start_year,
+        p.end_year,
+        p.engine,
+        p.power1,
+        p.engine_code,
+        p.vehicle_oe_no,
+        p.turbo_oe_no,
+        p.oem_chra_no,
+        p.recon_price,
+        p.repair_price,
+        related_price.recon_price AS related_recon_price,
+        p.in_stock,
+        mk.make_name,
+        mm.model_name,
+        tm.turbo_make,
+        tm.turbo_model,
+        tm.turbo_image
+      FROM tbl_product p
+      LEFT JOIN manage_make mk ON mk.make_id = p.make_id
+      LEFT JOIN manage_model mm ON mm.model_id = p.model_id
+      LEFT JOIN tbl_turbo_model tm ON tm.turbo_model_id = p.turbo_model_id
+      LEFT JOIN (
+        SELECT make_id, model_id, engine, MIN(NULLIF(recon_price, 0)) AS recon_price
+        FROM tbl_product
+        WHERE status = 1 AND recon_price > 0
+        GROUP BY make_id, model_id, engine
+      ) related_price
+        ON related_price.make_id = p.make_id
+        AND related_price.model_id = p.model_id
+        AND related_price.engine = p.engine
+      WHERE p.turbo_id = ? AND p.status = 1
+      LIMIT 1
+    `,
+    [productId]
+  );
+  return (rows as any[])[0] ? mapLegacyTurbo((rows as any[])[0]) : null;
 }
 
 export async function createTurboRecord(turbo: Omit<StoredTurbo, "id" | "createdAt" | "updatedAt">) {
@@ -439,18 +793,65 @@ export async function deleteTurboRecord(id: number) {
 
 export async function findVehicleByRegistration(registration: string) {
   if (useMysql()) {
-    const [rows] = await carPool.query("SELECT * FROM vehicles WHERE registration = ? LIMIT 1", [registration]);
+    const normalizedRegistration = registration.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+    const [rows] = await carPool.query("SELECT * FROM vehicles WHERE registration = ? LIMIT 1", [normalizedRegistration]);
     const row = (rows as any[])[0];
-    return row
+    if (row) {
+      const engineCapacity = row.engine ? Number(String(row.engine).replace(/[^0-9.]/g, "")) : undefined;
+      return {
+        registration: row.registration,
+        registrationNumber: row.registration,
+        make: row.make || undefined,
+        model: row.model || undefined,
+        year: row.year || undefined,
+        engine: row.engine || undefined,
+        engineCapacity: engineCapacity && engineCapacity < 100 ? Math.round(engineCapacity * 1000) : engineCapacity,
+        fuel: row.fuel || undefined,
+        fuelType: row.fuel || undefined,
+        colour: row.colour || undefined,
+        source: row.source
+      };
+    }
+
+    const [legacyNameRows] = await carPool.query(
+      "SELECT * FROM tbl_car_name WHERE reg_no = ? AND status = 1 LIMIT 1",
+      [normalizedRegistration]
+    );
+    const legacyName = (legacyNameRows as any[])[0];
+    if (legacyName) {
+      return {
+        registration: legacyName.reg_no,
+        registrationNumber: legacyName.reg_no,
+        make: legacyName.make_name || undefined,
+        model: legacyName.model_name || undefined,
+        year: legacyName.year || undefined,
+        engine: legacyName.engine ? `${legacyName.engine}L` : undefined,
+        engineCapacity: legacyName.engine ? Math.round(Number(legacyName.engine) * 1000) : undefined,
+        fuel: legacyName.fuel || undefined,
+        fuelType: legacyName.fuel || undefined,
+        colour: undefined,
+        bhp: legacyName.power1 || undefined,
+        source: "db"
+      };
+    }
+
+    const [legacyRows] = await carPool.query("SELECT * FROM tbl_car_data WHERE reg_no = ? AND status = 1 LIMIT 1", [
+      normalizedRegistration
+    ]);
+    const legacy = (legacyRows as any[])[0];
+    return legacy
       ? {
-          registration: row.registration,
-          make: row.make || undefined,
-          model: row.model || undefined,
-          year: row.year || undefined,
-          engine: row.engine || undefined,
-          fuel: row.fuel || undefined,
-          colour: row.colour || undefined,
-          source: row.source
+          registration: legacy.reg_no,
+          registrationNumber: legacy.reg_no,
+          make: undefined,
+          model: undefined,
+          year: legacy.year || undefined,
+          engine: legacy.engine ? `${legacy.engine}L` : undefined,
+          engineCapacity: legacy.engine ? Math.round(Number(legacy.engine) * 1000) : undefined,
+          fuel: undefined,
+          colour: undefined,
+          bhp: legacy.power1 || undefined,
+          source: "db"
         }
       : null;
   }
@@ -569,6 +970,10 @@ export async function createOrderRecord(order: Omit<StoredOrder, "id" | "created
       const orderId = (orderResult as any).insertId;
       
       for (const item of order.items) {
+        if (isLegacyTurboId(item.turboId)) {
+          const turbo = await getTurboById(item.turboId);
+          if (turbo) await upsertTurboSnapshot(connection, turbo);
+        }
         await connection.query(
           "INSERT INTO order_items (order_id, turbo_id, sku, name, quantity, unit_price) VALUES (?, ?, ?, ?, ?, ?)",
           [orderId, item.turboId, item.sku, item.name, item.quantity, item.unitPrice]
@@ -593,6 +998,33 @@ export async function createOrderRecord(order: Omit<StoredOrder, "id" | "created
     data.orders.push(created);
     return created;
   });
+}
+
+async function upsertTurboSnapshot(connection: any, turbo: StoredTurbo) {
+  await connection.query(
+    `INSERT INTO turbos (id, sku, make, model, year, engine, bhp, type, price, trade_price, stock, images, description, seo_slug)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     ON DUPLICATE KEY UPDATE
+       sku=VALUES(sku), make=VALUES(make), model=VALUES(model), year=VALUES(year), engine=VALUES(engine),
+       bhp=VALUES(bhp), type=VALUES(type), price=VALUES(price), trade_price=VALUES(trade_price),
+       stock=VALUES(stock), images=VALUES(images), description=VALUES(description), seo_slug=VALUES(seo_slug)`,
+    [
+      turbo.id,
+      turbo.sku,
+      turbo.make,
+      turbo.model,
+      turbo.year ?? null,
+      turbo.engine,
+      turbo.bhp ?? null,
+      turbo.type,
+      turbo.price,
+      turbo.tradePrice ?? null,
+      turbo.stock,
+      JSON.stringify(turbo.images),
+      turbo.description,
+      turbo.seoSlug
+    ]
+  );
 }
 
 export async function updateOrderPaymentRecord(orderId: number, patch: Partial<StoredOrder>) {
