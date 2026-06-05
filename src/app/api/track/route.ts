@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { jsonError } from "@/lib/http";
 import { rateLimit } from "@/lib/rateLimit";
-import { createVisitorLog } from "@/lib/visitor-analytics";
+import { createVisitorLog, summarizeVisitorAnalyticsError } from "@/lib/visitor-analytics";
 
 const trackSchema = z.object({
   page: z.string().min(1).max(2048),
@@ -25,12 +25,17 @@ export async function POST(request: Request) {
   const parsed = trackSchema.safeParse(await request.json());
   if (!parsed.success) return jsonError("Invalid analytics payload");
 
-  await createVisitorLog({
-    page: parsed.data.page,
-    referrer: parsed.data.referrer,
-    userAgent: parsed.data.userAgent,
-    ipAddress: getClientIp(request)
-  });
+  try {
+    await createVisitorLog({
+      page: parsed.data.page,
+      referrer: parsed.data.referrer,
+      userAgent: parsed.data.userAgent,
+      ipAddress: getClientIp(request)
+    });
+  } catch (error) {
+    console.warn("[api/track] Visitor tracking unavailable:", summarizeVisitorAnalyticsError(error));
+    return NextResponse.json({ status: "tracking-unavailable" }, { status: 202 });
+  }
 
   return NextResponse.json({ status: "tracked" }, { status: 201 });
 }
